@@ -59,7 +59,7 @@ def create_account():
 
     CURSOR.execute("INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;", (username, password,))
     user_id = CURSOR.fetchone()[0]
-    CURSOR.commit()
+    CONNECTION.commit()
 
     return jsonify({
         user_id, username, password
