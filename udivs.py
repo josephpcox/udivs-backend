@@ -1,7 +1,7 @@
 import os
 
 import psycopg2  # for databse connection
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 
 '''
 class User:
@@ -61,9 +61,7 @@ def create_account():
     user_id = CURSOR.fetchone()[0]
     CONNECTION.commit()
 
-    return jsonify({
-        user_id, username, password
-    })
+    return user_id + "<br/>" + username + "</br>" + password
 
 
 app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000))
