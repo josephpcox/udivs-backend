@@ -2,6 +2,11 @@ import os
 import psycopg2 # for databse connection 
 from flask import Flask,render_template,jsonify
 
+class user:
+    def __init__(self):
+        self.username = username # provided by the user 
+        self.password = password # provided by the user
+        self.accountID= accountID #this from the db table 
 
 # database globals 
 try:
@@ -14,11 +19,7 @@ except (Exception, psycopg2.Error) as error :
     print ("Error while connecting to PostgreSQL", error)
 
 
-class user:
-    def __init__(self):
-        self.username = username # provided by the user 
-        self.password = password # provided by the user
-        self.accountID= accountID #this from the db table 
+
     
     
 
