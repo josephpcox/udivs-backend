@@ -1,15 +1,25 @@
-import os
-
+import hashlib, binascii, os
 import psycopg2  # for databse connection
 from flask import Flask, render_template, request
 
-'''
-class User:
-    def __init__(self, username, password, account_id):
-        self.username = username  # provided by the user 
-        self.password = password  # provided by the user
-        self.accountID = account_id  # this from the db table 
-        '''
+def hash_password(password):
+    """Hash a password for storing."""
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), 
+                                salt, 100000)
+    pwdhash = binascii.hexlify(pwdhash)
+    return (salt + pwdhash).decode('ascii')
+ 
+def verify_password(stored_password, provided_password):
+    """Verify a stored password against one provided by user"""
+    salt = stored_password[:64]
+    stored_password = stored_password[64:]
+    pwdhash = hashlib.pbkdf2_hmac('sha512', 
+                                  provided_password.encode('utf-8'), 
+                                  salt.encode('ascii'), 
+                                  100000)
+    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+    return pwdhash == stored_password
 
 
 def table_exists(dbcon, tablename):
@@ -55,12 +65,25 @@ def create_account():
     request_data = request.get_json()
     username = request_data['username']
     password = request_data['password']
-
     cursor.execute("INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;", (username, password,))
     user_id = cursor.fetchone()[0]
     CONNECTION.commit()
-
     return user_id + "<br/>" + username + "</br>" + password
+
+@app.route('/users/login', methods=['POST'])
+def login():
+    request_data = request.get_json()
+    username = request_data['username']
+    password = request_data['password']
+    cursor.execute("SELECT username, password, FROM users WHERE username = %s AND ") # NEED TO HASH PASS and COMPARE 
+
+@app.route('/users/append', methods=['POST'])
+def append_csv():
+    request_data = request.get_jason()
+    username = request_data['username']
+    file = request_data['csv_file']
+    cursor.execute("UPDATE users SET csv_file = %s WHERE username = %s",(file,username))
+    return
 
 
 app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000))
