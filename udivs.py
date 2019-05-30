@@ -31,15 +31,14 @@ def table_exists(dbcon, tablename):
 try:
     DATABASE_URL = os.environ['DATABASE_URL']
     CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
-    CURSOR = CONNECTION.cursor()
+    cursor = CONNECTION.cursor()
     print(CONNECTION.get_dsn_parameters(), "\n")
 
     if not table_exists(CONNECTION, 'users'):
-        CURSOR.execute("CREATE TABLE users (user_id serial PRIMARY KEY,"
+        cursor.execute("CREATE TABLE users (user_id serial PRIMARY KEY,"
                        " username VARCHAR (50) UNIQUE NOT NULL,"
                        " password VARCHAR (50) NOT NULL,"
                        " csv_file BYTEA)")
-
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
 
@@ -48,7 +47,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return render_template('hello.html')
+    return render_template('index.html')
 
 
 @app.route('/users/create', methods=['POST'])
@@ -57,8 +56,8 @@ def create_account():
     username = request_data['username']
     password = request_data['password']
 
-    CURSOR.execute("INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;", (username, password,))
-    user_id = CURSOR.fetchone()[0]
+    cursor.execute("INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;", (username, password,))
+    user_id = cursor.fetchone()[0]
     CONNECTION.commit()
 
     return user_id + "<br/>" + username + "</br>" + password
