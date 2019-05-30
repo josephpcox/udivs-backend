@@ -6,6 +6,4 @@ app = Flask(__name__)
 def hello():
     return render_template('hello.html')
 
-
-
-app.run(debug=True,port=5000)
+app.run(debug=False, host='0.0.0.0', port=environ.get("PORT", 5000))
