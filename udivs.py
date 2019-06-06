@@ -6,7 +6,6 @@ app = Flask(__name__) # create the flask appliction
 
 def hash_password(password):
     '''Hash a password for storing.'''
-    
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
     pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), 
                                 salt, 100000)
@@ -76,7 +75,6 @@ def index():
 @app.route('/users/create', methods=['POST'])
 def create_account():
     ''' Create a user account at user/create endpoint'''
-    
     request_data = request.get_json()
     username = request_data['username']
     password = request_data['password']
@@ -89,7 +87,6 @@ def create_account():
 @app.route('/users/login', methods=['POST'])
 def login():
     ''' Method to verify login creditions at route /users/login'''
-    
     request_data = request.get_json()
     username = request_data['username']
     password = request_data['password']
@@ -98,13 +95,12 @@ def login():
         cursor.execute("SELECT account_id FROM users WHERE username = %s", (username))
     return
 
-@app.route('/user/csv')
+@app.route('/user/csv', methods=['GET'])
 def get_csv():
     ''' Get the csv file from the database at the route user/csv'''
-        
-    csv_file= cursor.execute("SELECT csv_file FROM users WHERE username = %s",(username))
-    data = {"csv_file":csv_file}
-    return jsonify(data)
+    request_data = request.getjson()
+    csv_file = cursor.execute("SELECT csv_file FROM users WHERE username = %s",(request_data['username']))
+    return jsonify({'csv_file':csv_file})
 
 #TODO: append the csv_file that is being stored in the database 
 @app.route('/users/csv/append', methods=['POST'])
@@ -122,11 +118,10 @@ def get_users():
     ''' Get all the users from the users table'''
     pass
 
-#********************** Administrators for the Admin page **********************************#
+#********************** Administrator Functions  for the Admin page **********************************#
 @app.route('/admin/create',methods = ['POST'])
 def create_admin():
     ''' Create a admin account at admin/create endpoint'''
-    
     request_data = request.get_json()
     admin_name = request_data['admin_name']
     password = request_data['password']
@@ -136,20 +131,19 @@ def create_admin():
     return admin_id + "<br/>" + admin_name + "</br>" + password
 
 @app.route('/admin/login', methods=['POST'])
-def login():
-    ''' Method to verify login creditions at route /users/login'''
-    
+def admin_login():
+    ''' Method to verify login creditions at route /admin/login'''
     request_data = request.get_json()
-    username = request_data['admin_name']
+    admin_name = request_data['admin_name']
     password = request_data['password']
     db_pass = cursor.execute("SELECT password FROM admin WHERE admin_name = %s",(admin_name))
     if verify_password(stored_password=db_pass,provided_password=password):
-        cursor.execute("SELECT account_id FROM users WHERE username = %s", (username))
+        cursor.execute("SELECT admin_id FROM admin WHERE admin_name = %s", (admin_name))
     return render_template('admin.html')
 
 @app.route('/admin/all')
 def get_admin():
     ''' get all the administrators from the admin table'''
     pass
-    
+
 app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000)) # run the flask surver
