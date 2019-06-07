@@ -1,8 +1,7 @@
-import hashlib, binascii, os #for environment and hashing passwords 
+import hashlib, binascii, os  # for environment and hashing passwords
 import psycopg2  # for data base connection
-from flask import Flask, render_template, request,jsonify
-
-app = Flask(__name__) # create the flask appliction
+from flask import Flask, render_template, request,jsonify # for sending and receiving request to the server 
+app = Flask(__name__) # create the flask application
 
 def hash_password(password):
     '''Hash a password for storing.'''
@@ -56,7 +55,7 @@ try:
     if not table_exists(CONNECTION,'admin'):
         cursor.execute("CREATE TABLE admin (admin_id serial PRIMARY KEY,"
                        "admin_name VARCHAR (50) UNIQUE NOT NULL,"
-                       "password VARCHAR (50) NOT NULL,")
+                       "password VARCHAR (50) NOT NULL)")
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
 
