@@ -51,11 +51,10 @@ try:
         cursor.execute("CREATE TABLE users (user_id serial PRIMARY KEY,"
                        " username VARCHAR (50) UNIQUE NOT NULL,"
                        " password VARCHAR (50) NOT NULL,"
+                        "admin BOOLEAN NOT NULL DEFAULT FALSE,"
                        " csv_file BYTEA)")
-    if not table_exists(CONNECTION,'admin'):
-        cursor.execute("CREATE TABLE admin (admin_id serial PRIMARY KEY,"
-                       "admin_name VARCHAR (50) UNIQUE NOT NULL,"
-                       "password VARCHAR (50) NOT NULL)")
+
+
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
 
