@@ -1,6 +1,10 @@
-import hashlib, binascii, os  # for environment and hashing passwords
+import binascii  # for environment and hashing passwords
+import hashlib
+import os
+
 import psycopg2  # for data base connection
-from flask import Flask, render_template, request,jsonify # for sending and receiving request to the server 
+from flask import Flask, render_template, request, jsonify  # for sending and receiving request to the server
+
 app = Flask(__name__) # create the flask application
 
 def hash_password(password):
@@ -47,13 +51,11 @@ try:
     cursor = CONNECTION.cursor()
     print(CONNECTION.get_dsn_parameters(), "\n")
 
-    if not table_exists(CONNECTION, 'users'):
-        cursor.execute("CREATE TABLE users (user_id serial PRIMARY KEY,"
-                       " username VARCHAR (50) UNIQUE NOT NULL,"
-                       " password VARCHAR (50) NOT NULL,"
-                        "admin BOOLEAN NOT NULL DEFAULT FALSE,"
-                       " csv_file BYTEA)")
-
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,"
+                   " username VARCHAR (50) UNIQUE NOT NULL,"
+                   " password VARCHAR (50) NOT NULL,"
+                   " admin BOOLEAN NOT NULL DEFAULT FALSE,"
+                   " csv_file BYTEA)")
 
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
