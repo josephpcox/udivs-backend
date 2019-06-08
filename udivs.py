@@ -54,7 +54,6 @@ try:
                         "admin BOOLEAN NOT NULL DEFAULT FALSE,"
                        " csv_file BYTEA)")
 
-
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
 
@@ -114,7 +113,8 @@ def append_csv():
 @app.route('/users/all')
 def get_users():
     ''' Get all the users from the users table'''
-    pass
+    users = cursor.execute("SELECT users.name FROM users")
+    return jsonify({"users":users})
 
 #********************** Administrator Functions  for the Admin page **********************************#
 @app.route('/admin/create',methods = ['POST'])
@@ -134,12 +134,12 @@ def admin_login():
     request_data = request.get_json()
     admin_name = request_data['admin_name']
     password = request_data['password']
-    db_pass = cursor.execute("SELECT password FROM admin WHERE admin_name = %s",(admin_name))
+    db_pass = cursor.execute("SELECT password FROM users WHERE username = %s",(admin_name))
     if verify_password(stored_password=db_pass,provided_password=password):
         cursor.execute("SELECT admin_id FROM admin WHERE admin_name = %s", (admin_name))
     return render_template('admin.html')
 
-@app.route('/admin/all')
+@app.route('/admin/all' methods = ['GET'])
 def get_admin():
     ''' get all the administrators from the admin table'''
     pass
