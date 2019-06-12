@@ -166,7 +166,7 @@ class Users(Resoruce):
     def delete(self):
         ''' Remove a user account form the database'''
         try:
-            parser = reqparser.RequestParser()
+            parser = reqparse.RequestParser()
             parser.add_argument('username', required=True,
                                 type=str, help='Username field is required')
             request_data = parser.parse_args(strict=True)
@@ -240,6 +240,7 @@ class Admin_Login(Resource):
                             type=str, help='user name is a required field')
         parser.add_argument('password', required=True,
                             type=str, help='password is a required field')
+        request_data = parser.parse_args()
         try:
             cursor = CONNECTION.cursor()
             cursor.execute(
