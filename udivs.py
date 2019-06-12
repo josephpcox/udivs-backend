@@ -116,8 +116,8 @@ def admin():
     return render_template('admin.html')
 
 
-class Users(Resoruce):
-    @jwt_required
+class Users(Resource):
+    @jwt_required()
     def get(self, username):
         '''Get all the attributes of one user row from the users table of the database'''
         try:
@@ -163,7 +163,7 @@ class Users(Resoruce):
     def put(self):  # not sure if we need a put
         pass
 
-    @jwt.required
+    @jwt_required()
     def delete(self):
         ''' Remove a user account form the database'''
         try:
