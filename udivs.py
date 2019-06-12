@@ -13,10 +13,12 @@ try:
     CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = CONNECTION.cursor()
     print(CONNECTION.get_dsn_parameters(), "\n")
-    if not table_exists(CONNECTION, 'users'):
-        cursor.execute('CREATE TABLE users (user_id serial PRIMARY KEY, username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,admin BOOLEAN NOT NULL DEFAULT FALSE,csv_file BYTEA)')
-        CONNECTION.commit()
-        cursor.close()
+    # check to se if the table exists with sql let the exception handler catch the error
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,"
+                   " username VARCHAR (50) UNIQUE NOT NULL,"
+                   " password VARCHAR (50) NOT NULL,"
+                   " admin BOOLEAN NOT NULL DEFAULT FALSE,"
+                   " csv_file BYTEA)")
 except (Exception, psycopg2.Error) as error:
     print("Error while connecting to PostgreSQL", error)
 
@@ -79,22 +81,6 @@ def identity(payload):
     except(Exception, psycopg2.Error) as error:
         print('Error while conntecting to the Postgres Database', error)
         return jsonify({'message': 'an error has occured see logs for more details', 'Error': error})
-
-
-def table_exists(dbcon, tablename):
-    ''' check if the table exists in the database '''
-    dbcur = dbcon.cursor()
-    dbcur.execute("""
-        SELECT COUNT(*)
-        FROM information_schema.tables
-        WHERE table_name = '{0}'
-        """.format(tablename.replace('\'', '\'\'')))
-    if dbcur.fetchone()[0] == 1:
-        dbcur.close()
-        return True
-
-    dbcur.close()
-    return False
 
 
 app = Flask(__name__)  # Create the flask app
