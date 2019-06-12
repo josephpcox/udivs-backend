@@ -1,3 +1,11 @@
+import hashlib
+import binascii
+import psycopg2
+import os
+import sys
+from test import test_users_table
+
+
 def hash_password(password):
     '''Hash a password for storing.'''
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
@@ -25,6 +33,7 @@ def authenticate(username, password):
     # you should find user in db here
     # you can see example in flask doc
     try:
+        CONNECTION = test_users_table()
         cursor = CONNECTION.cursor()
         # get the user by querying the database for the user
         cursor.execute(
@@ -38,14 +47,15 @@ def authenticate(username, password):
             cursor.close()
             return user
     except(Exception, psycopg2.Error) as error:
-        print('Error while conntecting to the Postgres Database', error)
-        return jsonify({'message': 'an error has occured see logs for more details', 'Error': error})
+        print('Error while conntecting to the Postgres Database',
+              error, file=sys.stderr)
 
 
 def identity(payload):
     ''' Identity function is needed to generate json web token '''
     # custom processing. the same as authenticate. see example in flask docs
     try:
+        CONNECTION = test_users_table()
         user_id = payload['identity']
         cursor = CONNECTION.cursor()
         cursor.execute(
@@ -54,5 +64,5 @@ def identity(payload):
         cursor.close()
         return _id
     except(Exception, psycopg2.Error) as error:
-        print('Error while conntecting to the Postgres Database', error)
-        return jsonify({'message': 'an error has occured see logs for more details', 'Error': error})
+        print('Error while conntecting to the Postgres Database',
+              error, file=sys.stderr)

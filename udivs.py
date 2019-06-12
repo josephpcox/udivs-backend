@@ -2,11 +2,14 @@
 from flask import Flask, jsonify, render_template, request
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import Resource, Api, reqparse
-from security import hash_password, verify_password,authenticate,identity # costum security functions from local security py
+# costum security functions from local security py
+from security import hash_password, verify_password, authenticate, identity
+from test import test_users_table
 import hashlib
 import binascii
 import os  # for environment and hashing passwords
 import psycopg2  # for data base connection
+import sys
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -15,11 +18,13 @@ app.config['SECRET_KEY'] = os.urandom(24)
 # Json Web Token for security and refreshing
 app.config.update(JWT=JWT(app, authenticate, identity))
 
+
 class Users(Resource):
     @jwt_required()
     def get(self, username):
         '''Get all the attributes of one user row from the users table of the database'''
         try:
+            CONNECTION = test_users_table()
             # parser does data validation
             parser = reqparse.RequestParser()
             parser.add_argument('username', required=True,
@@ -39,6 +44,7 @@ class Users(Resource):
     def post(self):
         ''' Create a user account at user/create endpoint'''
         try:
+            CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
             parser.add_argument('username', required=True,
                                 type=str, help='username field is required')
@@ -66,6 +72,7 @@ class Users(Resource):
     def delete(self):
         ''' Remove a user account form the database'''
         try:
+            CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
             parser.add_argument('username', required=True,
                                 type=str, help='Username field is required')
@@ -87,10 +94,12 @@ class CSV(Resource):
     def get():
         ''' Get the csv file from the database at the route user/csv'''
         try:
+            CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
             parser.add_argument('username', required=True,
                                 type=str, help='username field is required')
             request_data = parser.parse_args(strict=True)
+            cursor = CONNECTION.cursor()
             cursor.execute(
                 "SELECT csv_file FROM users WHERE users.username == %s" % request_data['username'])
             csv_file = cursor.fetchone()
@@ -119,6 +128,7 @@ class Login(Resource):
                             type=str, help=' password filed is required')
         request_data = parser.parse_args(strict=True)
         try:
+            CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
                 'SELECT users.username, users.password, FROM users WHERE users.username ==%s' % request_data['username'])
@@ -142,6 +152,7 @@ class Admin_Login(Resource):
                             type=str, help='password is a required field')
         request_data = parser.parse_args()
         try:
+            CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
                 'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s' % request_data['username'])
@@ -156,37 +167,30 @@ class Admin_Login(Resource):
             print("Error while connecting to PostgreSQL", error)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
 
-# API routes
-api.add_resource(Admin_Login, '/admin/login')
-api.add_resource(Users, '/users')
-api.add_resource(CSV, '/users/csv')
-api.add_resource(Login, '/users/login')
+# web pages
 
-# Webpage routes
+
 @app.route('/')
 def home():
     return render_template('index.html')
+
 
 @app.route('/admin')
 @jwt_required
 def admin():
     return render_template('admin.html')
 
+
+# API routes
+api.add_resource(Admin_Login, '/admin/login')
+api.add_resource(Users, '/users')
+api.add_resource(CSV, '/users/csv')
+api.add_resource(Login, '/users/login')
+
+
 if __name__ == "__main__":
+    test_users_table()
+    # database globals ensures that the database is connected
+    # flask prints to the std.error consol
     app.run(debug=False, host='0.0.0.0', port=os.environ.get(
         "PORT", 5000))  # run the flask server
-    # database globals ensures that the database is connected
-try:
-    DATABASE_URL = os.environ['DATABASE_URL']
-    CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
-    cursor = CONNECTION.cursor()
-    print(CONNECTION.get_dsn_parameters(), "\n")
-    # check to se if the table exists with sql let the exception handler catch the error
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,"
-                   " username VARCHAR (50) UNIQUE NOT NULL,"
-                   " password VARCHAR (50) NOT NULL,"
-                   " admin BOOLEAN NOT NULL DEFAULT FALSE,"
-                   " csv_file BYTEA)")
-    CONNECTION.commit() # Need to commit so that changes in db schema can be changed
-except (Exception, psycopg2.Error) as error:
-    print("Error while connecting to PostgreSQL", error)
