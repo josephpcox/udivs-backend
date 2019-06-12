@@ -6,9 +6,8 @@ import psycopg2
 def test_users_table():
     print(' * Testing database connection...', file=sys.stderr)
     try:
-        print(type(os.environ["DATABASE_URL"]), file=sys.stderr)
-        print(type(os.environ["DATABASE_URL"]), file=sys.stderr)
         DATABASE_URL = os.environ['DATABASE_URL']
+        print(type(DATABASE_URL))
         CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = CONNECTION.cursor()
         print(' *' + CONNECTION.get_dsn_parameters() + '\n', file=sys.stderr)
