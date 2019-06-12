@@ -2,86 +2,11 @@
 from flask import Flask, jsonify, render_template, request
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import Resource, Api, reqparse
+from security import hash_password, verify_password,authenticate,identity # costum security functions from local security py
 import hashlib
 import binascii
 import os  # for environment and hashing passwords
 import psycopg2  # for data base connection
-
-# database globals ensures that the database is connected
-try:
-    DATABASE_URL = os.environ['DATABASE_URL']
-    CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
-    cursor = CONNECTION.cursor()
-    print(CONNECTION.get_dsn_parameters(), "\n")
-    # check to se if the table exists with sql let the exception handler catch the error
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,"
-                   " username VARCHAR (50) UNIQUE NOT NULL,"
-                   " password VARCHAR (50) NOT NULL,"
-                   " admin BOOLEAN NOT NULL DEFAULT FALSE,"
-                   " csv_file BYTEA)")
-except (Exception, psycopg2.Error) as error:
-    print("Error while connecting to PostgreSQL", error)
-
-
-def hash_password(password):
-    '''Hash a password for storing.'''
-    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
-                                  salt, 100000)
-    pwdhash = binascii.hexlify(pwdhash)
-    return (salt + pwdhash).decode('ascii')
-
-
-def verify_password(stored_password, provided_password):
-    '''Verify a stored password against one provided by user'''
-
-    salt = stored_password[:64]
-    stored_password = stored_password[64:]
-    pwdhash = hashlib.pbkdf2_hmac('sha512',
-                                  provided_password.encode('utf-8'),
-                                  salt.encode('ascii'),
-                                  100000)
-    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
-    return pwdhash == stored_password
-
-
-def authenticate(username, password):
-    ''' Authentication required to create a json web token object'''
-    # you should find user in db here
-    # you can see example in flask doc
-    try:
-        cursor = CONNECTION.cursor()
-        # get the user by querying the database for the user
-        cursor.execute(
-            'SELECT users.username users.password FROM users WHERE users.username == %s' % username)
-        # make sure that the user exists and that the passwords match
-        username = cursor.fetchone()[0]
-        user_password = cursor.fetchone()[1]
-        if username and verify_password(user_password, password):
-            # retrun the list of information that defines the user
-            user = cursor.fetchone()
-            cursor.close()
-            return user
-    except(Exception, psycopg2.Error) as error:
-        print('Error while conntecting to the Postgres Database', error)
-        return jsonify({'message': 'an error has occured see logs for more details', 'Error': error})
-
-
-def identity(payload):
-    ''' Identity function is needed to generate json web token '''
-    # custom processing. the same as authenticate. see example in flask docs
-    try:
-        user_id = payload['identity']
-        cursor = CONNECTION.cursor()
-        cursor.execute(
-            'SELECT users.id FROM users WHERE users.id == %d' % user_id)
-        _id = cursor.fetchone()
-        cursor.close()
-        return _id
-    except(Exception, psycopg2.Error) as error:
-        print('Error while conntecting to the Postgres Database', error)
-        return jsonify({'message': 'an error has occured see logs for more details', 'Error': error})
-
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -89,18 +14,6 @@ api = Api(app)  # create the api
 app.config['SECRET_KEY'] = os.urandom(24)
 # Json Web Token for security and refreshing
 app.config.update(JWT=JWT(app, authenticate, identity))
-
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-
-@app.route('/admin')
-@jwt_required
-def admin():
-    return render_template('admin.html')
-
 
 class Users(Resource):
     @jwt_required()
@@ -243,10 +156,37 @@ class Admin_Login(Resource):
             print("Error while connecting to PostgreSQL", error)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
 
-
+# API routes
 api.add_resource(Admin_Login, '/admin/login')
 api.add_resource(Users, '/users')
 api.add_resource(CSV, '/users/csv')
 api.add_resource(Login, '/users/login')
-app.run(debug=False, host='0.0.0.0', port=os.environ.get(
-    "PORT", 5000))  # run the flask server
+
+# Webpage routes
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/admin')
+@jwt_required
+def admin():
+    return render_template('admin.html')
+
+if __name__ == "__main__":
+    app.run(debug=False, host='0.0.0.0', port=os.environ.get(
+        "PORT", 5000))  # run the flask server
+    # database globals ensures that the database is connected
+try:
+    DATABASE_URL = os.environ['DATABASE_URL']
+    CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = CONNECTION.cursor()
+    print(CONNECTION.get_dsn_parameters(), "\n")
+    # check to se if the table exists with sql let the exception handler catch the error
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,"
+                   " username VARCHAR (50) UNIQUE NOT NULL,"
+                   " password VARCHAR (50) NOT NULL,"
+                   " admin BOOLEAN NOT NULL DEFAULT FALSE,"
+                   " csv_file BYTEA)")
+    CONNECTION.commit() # Need to commit so that changes in db schema can be changed
+except (Exception, psycopg2.Error) as error:
+    print("Error while connecting to PostgreSQL", error)
