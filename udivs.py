@@ -1,5 +1,6 @@
 # author: joseph cox
-from flask import Flask, jsonify, render_template, request, JWT, jwt_required, current_identity
+from flask import Flask, jsonify, render_template, request
+from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import Resource, Api, reqparse
 import hashlib
 import binascii
