@@ -13,7 +13,6 @@ def hash_password(password):
  
 def verify_password(stored_password, provided_password):
     '''Verify a stored password against one provided by user'''
-    
     salt = stored_password[:64]
     stored_password = stored_password[64:]
     pwdhash = hashlib.pbkdf2_hmac('sha512', 
@@ -75,6 +74,7 @@ def create_account():
     request_data = request.get_json()
     username = request_data['username']
     password = request_data['password']
+    cursor = CONNECTION.cursor()
     cursor.execute("INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;", (username, password,))
     user_id = cursor.fetchone()[0]
     CONNECTION.commit()
@@ -96,7 +96,8 @@ def login():
 def get_csv():
     ''' Get the csv file from the database at the route user/csv'''
     request_data = request.getjson()
-    csv_file = cursor.execute("SELECT csv_file FROM users WHERE username = %s",(request_data['username']))
+    cursor.execute("SELECT csv_file FROM users WHERE username = %s",(request_data['username']))
+    csv_file = cursor.fetchone()
     return jsonify({'csv_file':csv_file})
 
 #TODO: append the csv_file that is being stored in the database 
@@ -142,6 +143,7 @@ def admin_login():
 @app.route('/admin/all' methods = ['GET'])
 def get_admin():
     ''' get all the administrators from the admin table'''
-    pass
+    admin = cursor.execute("SELECT user.name from users WHERE admin = TRUE")
+    return jsonify({"administrator":admin})
 
 app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000)) # run the flask surver
