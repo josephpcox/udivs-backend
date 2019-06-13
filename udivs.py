@@ -133,9 +133,8 @@ class CSV(Resource):
                 CONNECTION.commit()
                 cursor.close()
         except(Exception, psycopg2.Error) as error:
-            print(' *Error while connecting to PostgreSQL',
-                  error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), status': 404})
+            print(' *Error while connecting to PostgreSQL',error, file=sys.stderr)
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
         return jsonify({'message': 'csv file has been updated ', 'status': 200})
     # TODO not sure how to implement or if it is necessary
 
