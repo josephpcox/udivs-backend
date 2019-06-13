@@ -124,8 +124,7 @@ class CSV(Resource):
             username = request_data['username']
             password = request_data['password']
             cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE users.username=%s', (username))
+            cursor.execute('SELECT users.username, users.password FROM users WHERE users.username=%s;', (username))
             results = cursor.fetchone()[0]
             password_db = cursor.fetchone()[1]
             if user and verify_password(password_db, password):
@@ -138,7 +137,7 @@ class CSV(Resource):
         except(Exception, psycopg2.Error) as error:
             print(' *Error while connecting to PostgreSQL',
                   error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': error, 'status': 404})
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
 
     # TODO not sure how to implement or if it is necessary
 
