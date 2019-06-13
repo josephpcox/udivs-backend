@@ -101,35 +101,42 @@ class CSV(Resource):
             request_data = parser.parse_args(strict=True)
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT csv_file FROM users WHERE users.username = %s',request_data['username'])
+                'SELECT csv_file FROM users WHERE users.username = %s', request_data['username'])
             csv_file = cursor.fetchone()
             return jsonify({'csv_file': csv_file, 'status': 200})
         except(Exception, psycopg2.Error)as error:
-            print(' *Error while connecting to PostgreSQL', error,file=sys.stderr)
-        return jsonify({'message': 'An error has occurred check the logs for more details.','Error':error,'status': 404})
+            print(' *Error while connecting to PostgreSQL',
+                  error, file=sys.stderr)
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': error, 'status': 404})
 
-    def put(self): 
+    def put(self):
         ''' Every user starts with empty blob data in the table this function is to append to that blob data '''
         try:
             CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
-            parser.add_argument('username',required=True,type=str,help='username field is required')
-            parser.add_argument('password',required=True,type=str,help='password filed is required')
-            parser.add_argument('csv_file',required=True,type=str,help='Blob_Data is the csv data')
+            parser.add_argument('username', required=True,
+                                type=str, help='username field is required')
+            parser.add_argument('password', required=True,
+                                type=str, help='password filed is required')
+            parser.add_argument('csv_file', required=True,
+                                type=str, help='Blob_Data is the csv data')
             request_data = parser.parse_args(strict=True)
             cursor = CONNECTION.cursor()
-            cursor.execute('SELECT users.username, users.password FROM users WHERE username=%s',request_data['username'])
+            cursor.execute(
+                'SELECT users.username, users.password FROM users WHERE username=%s', request_data['username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
-            if user and verify_password(password,request_data['password']):
-                cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s',(request_data['csv_file'],request_data['username']))
-                return jsonify({'message': 'csv file has been updataed ','status':200})
-        except(Exception,psycopg2.Error) as error:
-            print(' *Error while connecting to PostgreSQL', error,file=sys.stderr)
-        return jsonify({'message':'An error has occurred check the logs for more details.','Error':error,'status': 404})
-
+            if user and verify_password(password, request_data['password']):
+                cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s',
+                               (request_data['csv_file'], request_data['username']))
+                return jsonify({'message': 'csv file has been updataed ', 'status': 200})
+        except(Exception, psycopg2.Error) as error:
+            print(' *Error while connecting to PostgreSQL',
+                  error, file=sys.stderr)
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': error, 'status': 404})
 
     # TODO not sure how to implement or if it is necessary
+
     def delete(self):
         pass
 
@@ -156,8 +163,7 @@ class Login(Resource):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify(
-                {'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
 
 
 class Admin_Login(Resource):
