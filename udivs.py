@@ -123,7 +123,7 @@ class CSV(Resource):
             request_data = parser.parse_args(strict=True)
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE username=%s', request_data['username'])
+                'SELECT users.username, users.password FROM users WHERE users.username=%s', request_data['username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
             if user and verify_password(password, request_data['password']):
