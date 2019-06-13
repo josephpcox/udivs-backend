@@ -20,7 +20,7 @@ app.config.update(JWT=JWT(app, authenticate, identity))
 
 class Users(Resource):
     @jwt_required()
-    def get(self, username):
+    def get(self):
         '''Get all the attributes of one user row from the users table of the database'''
         try:
             CONNECTION = test_users_table()
@@ -91,7 +91,7 @@ class Users(Resource):
 
 
 class CSV(Resource):
-    def get():
+    def get(self):
         ''' Get the csv file from the database at the route user/csv'''
         try:
             CONNECTION = test_users_table()
@@ -108,7 +108,7 @@ class CSV(Resource):
             print(' *Error while connecting to PostgreSQL', error,file=sys.stderr)
         return jsonify({'message': 'An error has occurred check the logs for more details.','Error':error,'status': 404})
 
-    def put(): 
+    def put(self): 
         ''' Every user starts with empty blob data in the table this function is to append to that blob data '''
         try:
             CONNECTION = test_users_table()
@@ -130,7 +130,7 @@ class CSV(Resource):
 
 
     # TODO not sure how to implement or if it is necessary
-    def delete():
+    def delete(self):
         pass
 
 
