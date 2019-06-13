@@ -121,12 +121,14 @@ class CSV(Resource):
             parser.add_argument('csv_file', required=True,
                                 type=str, help='Blob_Data is the csv data')
             request_data = parser.parse_args(strict=True)
+            username = request_data['username']
+            password = request_data['password']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE users.username=%s', request_data['username'])
+                'SELECT users.username, users.password FROM users WHERE users.username=%s', username)
             user = cursor.fetchone()[0]
-            password = cursor.fetchone()[1]
-            if user and verify_password(password, request_data['password']):
+            password_db = cursor.fetchone()[1]
+            if user and verify_password(password_db,password):
                 cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s',
                                (request_data['csv_file'], request_data['username']))
                 return jsonify({'message': 'csv file has been updataed ', 'status': 200})
