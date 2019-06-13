@@ -55,13 +55,13 @@ class Users(Resource):
             password = hash_password(request_data['password'])
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;' % (username, password,))
+                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;',(username, password,))
             user_id = cursor.fetchone()[0]
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'Check logs for more details', 'Error': error})
+            return jsonify({'message': 'Check logs for more details', 'Error': error,'status':500})
         # rerun status 200 if it worked
         return jsonify({'message': 'insert successful', 'status': 200})
 
