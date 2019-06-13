@@ -32,14 +32,14 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT * FROM users WHERE users.username == %s',(username))
+                'SELECT * FROM users WHERE users.username == %s', (username))
             user_row = cursor.fetchone()
             cursor.close()
         except (Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
             return jsonify({'message': 'check the logs for more details', 'Error': str(error)})
         return jsonify({'user row': user_row, 'status': 200})
-   
+
     def post(self):
         ''' Create a user account at user/create endpoint'''
         try:
@@ -79,7 +79,7 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'DELETE FROM users WHERE users.username=%s;',username)
+                'DELETE FROM users WHERE users.username=%s;', username)
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
@@ -122,18 +122,20 @@ class CSV(Resource):
             username = request_data['username']
             password = request_data['password']
             cursor = CONNECTION.cursor()
-            cursor.execute('SELECT users.username, users.password FROM users WHERE users.username=%s;', (username))
+            cursor.execute(
+                'SELECT users.username, users.password FROM users WHERE users.username=%s;', (username,))
             user = cursor.fetchone()[0]
             password_db = cursor.fetchone()[1]
             if user and verify_password(password_db, password):
                 csv_file = request_data['csv_file']
-                cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s;', (csv_file, username,))
+                cursor.execute(
+                    'UPDATE users SET csv_file = %s WHERE users.username = %s;', (csv_file, username,))
                 CONNECTION.commit()
                 cursor.close()
         except(Exception, psycopg2.Error) as error:
             print(' *Error while connecting to PostgreSQL',
                   error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'index': str(error.index), status': 404})
         return jsonify({'message': 'csv file has been updated ', 'status': 200})
     # TODO not sure how to implement or if it is necessary
 
