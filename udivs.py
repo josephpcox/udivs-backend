@@ -126,11 +126,13 @@ class CSV(Resource):
             cursor = CONNECTION.cursor()
             cursor.execute(
                 'SELECT users.username, users.password FROM users WHERE users.username=%s',(username,))
-            user = cursor.fetchone()[0]
-            password_db = cursor.fetchone()[1]
+            user = cursor.fetchone()['username']
+            password_db = cursor.fetchone()['password']
             if user and verify_password(password_db,password):
                 csv_file = request_data['csv_file']
                 cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s',(csv_file,username,))
+                CONNECTION.commit()
+                cursor.close()
                 return jsonify({'message': 'csv file has been updataed ', 'status': 200})
         except(Exception, psycopg2.Error) as error:
             print(' *Error while connecting to PostgreSQL',
