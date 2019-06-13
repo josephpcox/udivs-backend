@@ -125,10 +125,9 @@ class CSV(Resource):
             password = request_data['password']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE users.username=%s', (username,))
-            results = cursor.fetchone()
-            user = results['username']
-            password_db = results['password']
+                'SELECT users.username, users.password FROM users WHERE users.username=%s', (username))
+            results = cursor.fetchone()[0]
+            password_db = cursor.fetchone()[1]
             if user and verify_password(password_db, password):
                 csv_file = request_data['csv_file']
                 cursor.execute(
