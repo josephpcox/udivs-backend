@@ -125,12 +125,14 @@ class CSV(Resource):
             password = request_data['password']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE users.username=%s',(username,))
-            user = cursor.fetchone()['username']
-            password_db = cursor.fetchone()['password']
-            if user and verify_password(password_db,password):
+                'SELECT users.username, users.password FROM users WHERE users.username=%s', (username,))
+            results = cursor.fetchone()
+            user = results['username']
+            password_db = results['password']
+            if user and verify_password(password_db, password):
                 csv_file = request_data['csv_file']
-                cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s',(csv_file,username,))
+                cursor.execute(
+                    'UPDATE users SET csv_file = %s WHERE users.username = %s', (csv_file, username,))
                 CONNECTION.commit()
                 cursor.close()
                 return jsonify({'message': 'csv file has been updataed ', 'status': 200})
