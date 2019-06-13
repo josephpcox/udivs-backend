@@ -32,15 +32,14 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT * FROM users WHERE users.username == %s' % username)
+                'SELECT * FROM users WHERE users.username == %s',(username))
             user_row = cursor.fetchone()
             cursor.close()
         except (Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
-
-        return jsonify({'user row': user_row, 'status': 200}) if user_row else jsonify(
-            {'message': 'check the logs for more details', 'Error': error})
-
+            return jsonify({'message': 'check the logs for more details', 'Error': str(error)})
+        return jsonify({'user row': user_row, 'status': 200})
+   
     def post(self):
         ''' Create a user account at user/create endpoint'''
         try:
@@ -55,13 +54,13 @@ class Users(Resource):
             password = hash_password(request_data['password'])
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;', (username, password,))
+                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;', (username, password))
             user_id = cursor.fetchone()[0]
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'Check logs for more details', 'Error': error, 'status': 500})
+            return jsonify({'message': 'Check logs for more details', 'Error': str(error), 'status': 500})
         # rerun status 200 if it worked
         return jsonify({'message': 'insert successful', 'status': 200})
 
@@ -80,13 +79,12 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'DELETE FROM users WHERE users.username=%s' % username)
+                'DELETE FROM users WHERE users.username=%s;',username)
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'check the logs for more details', 'Error': error})
-        # rerun status 200 if it worked
+            return jsonify({'message': 'check the logs for more details', 'Error': str(error)})
         return jsonify({'message': 'delete successful', 'status': 204})
 
 
@@ -101,13 +99,13 @@ class CSV(Resource):
             request_data = parser.parse_args(strict=True)
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT csv_file FROM users WHERE users.username = %s', request_data['username'])
-            csv_file = cursor.fetchone()
-            return jsonify({'csv_file': csv_file, 'status': 200})
+                'SELECT csv_file FROM users WHERE users.username = %s;', request_data['username'])
+            csv_file = cursor.fetchone()[0]
         except(Exception, psycopg2.Error)as error:
             print(' *Error while connecting to PostgreSQL',
                   error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': error, 'status': 404})
+            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
+        return jsonify({'csv_file': csv_file, 'status': 200})
 
     def put(self):
         ''' Every user starts with empty blob data in the table this function is to append to that blob data '''
@@ -125,20 +123,18 @@ class CSV(Resource):
             password = request_data['password']
             cursor = CONNECTION.cursor()
             cursor.execute('SELECT users.username, users.password FROM users WHERE users.username=%s;', (username))
-            results = cursor.fetchone()[0]
+            user = cursor.fetchone()[0]
             password_db = cursor.fetchone()[1]
             if user and verify_password(password_db, password):
                 csv_file = request_data['csv_file']
-                cursor.execute(
-                    'UPDATE users SET csv_file = %s WHERE users.username = %s', (csv_file, username,))
+                cursor.execute('UPDATE users SET csv_file = %s WHERE users.username = %s;', (csv_file, username,))
                 CONNECTION.commit()
                 cursor.close()
-                return jsonify({'message': 'csv file has been updataed ', 'status': 200})
         except(Exception, psycopg2.Error) as error:
             print(' *Error while connecting to PostgreSQL',
                   error, file=sys.stderr)
             return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
-
+        return jsonify({'message': 'csv file has been updated ', 'status': 200})
     # TODO not sure how to implement or if it is necessary
 
     def delete(self):
@@ -167,7 +163,7 @@ class Login(Resource):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
 
 class Admin_Login(Resource):
@@ -193,7 +189,7 @@ class Admin_Login(Resource):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
 
 # web pages
