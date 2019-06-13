@@ -1,15 +1,14 @@
 # author: joseph cox
-from flask import Flask, jsonify, render_template, request
-from flask_jwt import JWT, jwt_required, current_identity
+import os  # for environment and hashing passwords
+
+import psycopg2  # for data base connection
+from flask import Flask, jsonify, render_template
+from flask_jwt import JWT, jwt_required
 from flask_restful import Resource, Api, reqparse
+
 # costum security functions from local security py
 from security import hash_password, verify_password, authenticate, identity
 from test import test_users_table
-import hashlib
-import binascii
-import os  # for environment and hashing passwords
-import psycopg2  # for data base connection
-import sys
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -39,7 +38,8 @@ class Users(Resource):
         except (Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
 
-        return jsonify({'user row': user_row, 'status': 200}) if user_row else jsonify({'message': 'check the logs for more details', 'Error': error})
+        return jsonify({'user row': user_row, 'status': 200}) if user_row else jsonify(
+            {'message': 'check the logs for more details', 'Error': error})
 
     def post(self):
         ''' Create a user account at user/create endpoint'''
@@ -55,13 +55,13 @@ class Users(Resource):
             password = hash_password(request_data['password'])
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;',(username, password,))
+                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;', (username, password,))
             user_id = cursor.fetchone()[0]
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'Check logs for more details', 'Error': error,'status':500})
+            return jsonify({'message': 'Check logs for more details', 'Error': error, 'status': 500})
         # rerun status 200 if it worked
         return jsonify({'message': 'insert successful', 'status': 200})
 
@@ -105,7 +105,8 @@ class CSV(Resource):
             csv_file = cursor.fetchone()
         except(Exception, psycopg2.Error)as error:
             print("Error while connecting to PostgreSQL", error)
-        return jsonify({'csv_file': csv_file, 'status': 200}) if csv_file else jsonify({'message': 'check log for more details', 'status': 404})
+        return jsonify({'csv_file': csv_file, 'status': 200}) if csv_file else jsonify(
+            {'message': 'check log for more details', 'status': 404})
 
     def post():  # not sure if we need post, the csv file should be created by default in the database
         pass
@@ -113,6 +114,7 @@ class CSV(Resource):
     # TODO not sure how to implements or if it is necessary
     def put():
         pass
+
     # TODO not sure how to implement or if it is necessary
 
     def delete():
@@ -131,7 +133,8 @@ class Login(Resource):
             CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password, FROM users WHERE users.username ==%s' % request_data['username'])
+                'SELECT users.username, users.password, FROM users WHERE users.username ==%s' % request_data[
+                    'username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
             request_password = request_data['password']
@@ -140,7 +143,8 @@ class Login(Resource):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+            return jsonify(
+                {'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
 
 
 class Admin_Login(Resource):
@@ -155,7 +159,8 @@ class Admin_Login(Resource):
             CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s' % request_data['username'])
+                'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s' % request_data[
+                    'username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
             admin = cursor.fetchone()[2]
@@ -165,7 +170,9 @@ class Admin_Login(Resource):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
             print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+            return jsonify(
+                {'message': 'invalid credentials check the logs for more details', 'Error': error, 'status': 401})
+
 
 # web pages
 
@@ -186,7 +193,6 @@ api.add_resource(Admin_Login, '/admin/login')
 api.add_resource(Users, '/users')
 api.add_resource(CSV, '/users/csv')
 api.add_resource(Login, '/users/login')
-
 
 if __name__ == "__main__":
     test_users_table()

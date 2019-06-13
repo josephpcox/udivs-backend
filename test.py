@@ -1,5 +1,6 @@
 import os
 import sys
+
 import psycopg2
 
 
@@ -10,7 +11,8 @@ def test_users_table():
         CONNECTION = psycopg2.connect(DATABASE_URL, sslmode='require')
         print(CONNECTION.get_dsn_parameters(), file=sys.stderr)
         cursor = CONNECTION.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,admin BOOLEAN NOT NULL DEFAULT FALSE,csv_file BYTEA)')
+        cursor.execute(
+            'CREATE TABLE IF NOT EXISTS users (user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (255) NOT NULL,admin BOOLEAN NOT NULL DEFAULT FALSE,csv_file BYTEA)')
         CONNECTION.commit()  # Need to commit so that changes in db schema can be changed
         cursor.close()
         return CONNECTION
