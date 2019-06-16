@@ -1,10 +1,9 @@
-# author: joseph cox
+'''@author: joseph cox'''
 import os  # for environment and hashing passwords
 import psycopg2  # for data base connection
 from flask import Flask, jsonify, render_template
 from flask_jwt import JWT, jwt_required
 from flask_restful import Resource, Api, reqparse
-
 # costum security functions from local security py
 from security import hash_password, verify_password, authenticate, identity
 from test import test_users_table
@@ -164,7 +163,7 @@ class Login(Resource):
             if user and verify_password(password, request_password):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
-            print("Error while connecting to PostgreSQL", error)
+            print("Error while connecting to PostgreSQL", error,file = sys.stderr)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
 

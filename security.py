@@ -4,7 +4,10 @@ import psycopg2
 import os
 import sys
 from test import test_users_table
-
+'''
+@author Joseph Cox
+@author John Cameron 
+'''
 
 def hash_password(password):
     '''Hash a password for storing.'''

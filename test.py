@@ -2,6 +2,11 @@ import os
 import sys
 import psycopg2
 
+'''
+@author Joseph Cox
+@author John Cameron 
+'''
+
 
 def test_users_table():
     print(' * Testing database connection...', file=sys.stderr)
