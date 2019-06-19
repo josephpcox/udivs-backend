@@ -1,4 +1,4 @@
-'''@author: joseph cox'''
+"""@author: joseph cox"""
 import os  # for environment and hashing passwords
 import psycopg2  # for data base connection
 from flask import Flask, jsonify, render_template
@@ -20,7 +20,7 @@ app.config.update(JWT=JWT(app, authenticate, identity))
 class Users(Resource):
     @jwt_required()
     def get(self):
-        '''Get all the attributes of one user row from the users table of the database'''
+        """Get all the attributes of one user row from the users table of the database"""
         try:
             CONNECTION = test_users_table()
             # parser does data validation
@@ -40,7 +40,7 @@ class Users(Resource):
         return jsonify({'user row': user_row, 'status': 200})
 
     def post(self):
-        ''' Create a user account at user/create endpoint'''
+        """Create a user account at user/create endpoint"""
         try:
             CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
@@ -68,7 +68,7 @@ class Users(Resource):
 
     @jwt_required()
     def delete(self):
-        ''' Remove a user account form the database'''
+        """Remove a user account form the database"""
         try:
             CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
@@ -89,7 +89,7 @@ class Users(Resource):
 
 class CSV(Resource):
     def get(self):
-        ''' Get the csv file from the database at the route user/csv'''
+        """Get the csv file from the database at the route user/csv"""
         try:
             CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
@@ -107,7 +107,7 @@ class CSV(Resource):
         return jsonify({'csv_file': csv_file, 'status': 200})
 
     def put(self):
-        ''' Every user starts with empty blob data in the table this function is to append to that blob data '''
+        """Every user starts with empty blob data in the table this function is to append to that blob data """
         try:
             CONNECTION = test_users_table()
             parser = reqparse.RequestParser()
@@ -136,13 +136,14 @@ class CSV(Resource):
             print(' *Error while connecting to PostgreSQL',error, file=sys.stderr)
             return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
         return jsonify({'message': 'csv file has been updated ', 'status': 200})
-    # TODO not sure how to implement or if it is necessary
 
+    # TODO not sure how to implement or if it is necessary
     def delete(self):
         pass
 
 
 class Login(Resource):
+    """ Login is a resource for regular accounts to post to to login and varify their credentials"""
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True,
@@ -168,6 +169,7 @@ class Login(Resource):
 
 
 class Admin_Login(Resource):
+    """ This is a rest class for the admin html page. """
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True,
@@ -179,7 +181,7 @@ class Admin_Login(Resource):
             CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s' % request_data[
+                'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s', request_data[
                     'username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
