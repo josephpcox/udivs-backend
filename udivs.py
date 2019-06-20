@@ -18,7 +18,7 @@ app.config.update(JWT=JWT(app, authenticate, identity))
 
 
 class Users(Resource):
-    @jwt_required()
+    @jwt_required
     def get(self):
         """Get all the attributes of one user row from the users table of the database"""
         try:
@@ -66,7 +66,7 @@ class Users(Resource):
     def put(self):  # not sure if we need a put
         pass
 
-    @jwt_required()
+    @jwt_required
     def delete(self):
         """Remove a user account form the database"""
         try:
@@ -88,6 +88,7 @@ class Users(Resource):
 
 
 class CSV(Resource):
+    @jwt_required
     def get(self):
         """Get the csv file from the database at the route user/csv"""
         try:
@@ -198,7 +199,7 @@ class Admin_Login(Resource):
 # web pages
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('enroll.html')
 
 
 @app.route('/admin')

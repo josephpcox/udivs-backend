@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 14px;
+	padding: 0 12px;
+	line-height: 22px;
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	color: #4080D0;
+	text-decoration: none;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+	font-size: inherit;
+	line-height: auto;
+}
+
+a:hover {
+	color: #4080D0;
+	text-decoration: underline;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left: 5px solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 14px;
+	line-height: 19px;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+.mac code {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+/** Theming */
+
+.vscode-light,
+.vscode-light pre code {
+	color: rgb(30, 30, 30);
+}
+
+.vscode-dark,
+.vscode-dark pre code {
+	color: #DDD;
+}
+
+.vscode-high-contrast,
+.vscode-high-contrast pre code {
+	color: white;
+}
+
+.vscode-light code {
+	color: #A31515;
+}
+
+.vscode-dark code {
+	color: #D7BA7D;
+}
+
+.vscode-light pre:not(.hljs),
+.vscode-light code > div {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre:not(.hljs),
+.vscode-dark code > div {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre:not(.hljs),
+.vscode-high-contrast code > div {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+	background: transparent;
+	border-color: #fff;
+}
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family:  "Meiryo", "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+</head>
+<body>
+<h1 id="udivs-backend">udivs-backend</h1>
+<p>REST service for UDIVS hybrid app
+Host
+ec2-184-73-153-64.compute-1.amazonaws.com
+Database
+dft15go1rt1ppb
+User
+wjuuhyleifjbzp</p>
+<h1 id="clone-a-repository">Clone a repository</h1>
+<p>Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, <a href="https://www.sourcetreeapp.com/">download and install first</a>. If you prefer to clone from the command line, see <a href="https://confluence.atlassian.com/x/4whODQ">Clone a repository</a>.</p>
+<ol>
+<li>You’ll see the clone button under the <strong>Source</strong> heading. Click that button.</li>
+<li>Now click <strong>Check out in SourceTree</strong>. You may need to create a SourceTree account or log in.</li>
+<li>When you see the <strong>Clone New</strong> dialog in SourceTree, update the destination path and name if you’d like to and then click <strong>Clone</strong>.</li>
+<li>Open the directory you just created to see your repository’s files.</li>
+</ol>
+<p>You can <a href="https://confluence.atlassian.com/x/iqyBMg">push your change back to Bitbucket with SourceTree</a>, or you can <a href="https://confluence.atlassian.com/x/8QhODQ">add, commit,</a> and <a href="https://confluence.atlassian.com/x/NQ0zDQ">push from the command line</a>.</p>
+<h2 id="getting-the-branches">Getting the Branches</h2>
+<ol>
+<li>Cordova : <em>git fetch &amp;&amp; git checkout Cordova</em></li>
+<li>DataAnalysis: <em>git fetch &amp;&amp; git checkout DataAnalysis</em> slack channel is (data analysis)</li>
+<li>Latex<em>Src: _git fetch &amp;&amp; git checkout Latex_src</em> slack channel is (paper)</li>
+<li>REST: <em>git fetch &amp;&amp; git checkout REST</em></li>
+</ol>
+<h2 id="bitbucket-cloud-tutorial">Bitbucket Cloud Tutorial</h2>
+<p><strong>Edit a file, create a new file, and clone from Bitbucket in under 2 minutes</strong></p>
+<p>When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.</p>
+<p><em>We recommend that you open this README in another tab as you perform the tasks below. You can <a href="https://youtu.be/0ocf7u76WSo">watch our video</a> for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.</em></p>
+<h2 id="git-branch">Git branch</h2>
+<p>Once you have the other branches you can run <em>git branch</em> and it should show you all the branches in a list and highlight the branch you are currently working on, it should look something like this:</p>
+<h3 id="git-checkout">Git Checkout</h3>
+<p>To switch to the branch you need to work on by simply running <em>git checkout <branch name></em> without the angle brackets. this will switch your branch to the one you specified in <branch name></p>
+<hr>
+<h2 id="utilizing-requirementstxt">Utilizing <em>requirements.txt</em></h2>
+<p>Instead of pushing the virtual environment to the repository we will just save our environments settings inside a requirements.txt file. Once you have your virtual environment set up outside of your local git repository
+use : <em>pip install -r requirements.txt</em> inside your activated virtual environment. It will automatically update your dependencies. If you make any changes to your local environment use pip <em>freez&gt;requirements.txt</em> it will overwrite the requirements.txt file with all the python libraries that you have installed in your virtual environment including the ones that you recently added. This will save space and time on your commits and pulls from the repository.</p>
+<hr>
+<h2 id="activating-a-virtual-env">Activating a virtual env</h2>
+<p>Activating a virtual env will put the virtualenv-specificpython and pip executable into your shell’s PATH. You can confirm you’re in the virtual env by checking the location of your Python interpreter, it should point to the env directory</p>
+<h3 id="on-macos-and-linux">On macOS and Linux</h3>
+<ol>
+<li><em>source env/bin/activate</em> to activate the environment</li>
+<li><em>which python</em> to locate python interpreter
+.../env/bin/python</li>
+</ol>
+<h3 id="on-windows">On Windows</h3>
+<ol>
+<li>
+<p><em>.\env\Scripts\activate</em></p>
+</li>
+<li>
+<p><em>where python</em> to locate python interpreter .../env/bin/python.exe</p>
+</li>
+</ol>
+<p>As long as your virtual env is activated pip will install packages into that specific environment and you’ll be able to import and use packages in your Python application.</p>
+<h3 id="leaving-the-virtual-env">Leaving the virtual env</h3>
+<p>If you want to switch projects or otherwise leave your virtual env, simply run:
+<em>deactivate</em></p>
+<hr>
+<h2 id="technology-stack">Technology Stack</h2>
+<h3 id="server-side">Server Side</h3>
+<ol>
+<li>SQL DB (not sure which one yet)</li>
+<li>Python Flask RESTful: <a href="https://flask-restful.readthedocs.io/en/latest/">https://flask-restful.readthedocs.io/en/latest/</a></li>
+<li>SQL Alchemy (if applicable): <a href="https://www.sqlalchemy.org/">https://www.sqlalchemy.org/</a></li>
+</ol>
+<h3 id="client-side">Client Side</h3>
+<ol>
+<li>Android Develoment Kit</li>
+</ol>
+<hr>
+<h2 id="rest-api-and-flask-restful">REST API and Flask RESTful</h2>
+<h3 id="what-is-rest-api">What is REST API</h3>
+<p>An API is a program that takes in some data and gives back some other data, usually after processing it.</p>
+<p>We will be building such programs, so that our users can send us some data, we can process it, and then we can send them something else.</p>
+<p><strong>REST</strong> is acronym for REpresentational State Transfer. It is architectural style for distributed hypermedia systems and was first presented by Roy Fielding in 2000 in his famous dissertation.</p>
+<p>Like any other architectural style, REST also does have it’s own 6 guiding constraints which must be satisfied if an interface needs to be referred as RESTful. These principles are listed below.</p>
+<ol>
+<li>
+<p><em>Client–server</em>-
+By separating the user interface concerns from the data storage concerns, we improve the portability of the user interface across multiple platforms and improve scalability by simplifying the server components.</p>
+</li>
+<li>
+<p><em>Stateless</em> – Each request from client to server must contain all of the information necessary to understand the request, and cannot take advantage of any stored context on the server. Session state is therefore kept entirely on the client.</p>
+</li>
+<li>
+<p><em>Cacheable</em> – Cache constraints require that the data within a response to a request be implicitly or explicitly labeled as cacheable or non-cacheable. If a response is cacheable, then a client cache is given the right to reuse that response data for later, equivalent requests.</p>
+</li>
+<li>
+<p><em>Uniform interface</em> – By applying the software engineering principle of generality to the component interface, the overall system architecture is simplified and the visibility of interactions is improved. In order to obtain a uniform interface, multiple architectural constraints are needed to guide the behavior of components. REST is defined by four interface constraints: identification of resources; manipulation of resources through representations; self-descriptive messages; and, hypermedia as the engine of application state.</p>
+</li>
+<li>
+<p><em>Layered system</em> – The layered system style allows an architecture to be composed of hierarchical layers by constraining component behavior such that each component cannot “see” beyond the immediate layer with which they are interacting.</p>
+</li>
+<li>
+<p><em>Code on demand (optional)</em> – REST allows client functionality to be extended by downloading and executing code in the form of applets or scripts. This simplifies clients by reducing the number of features required to be pre-implemented.</p>
+</li>
+</ol>
+<p><a href="https://restfulapi.net/">https://restfulapi.net/</a></p>
+<h3 id="what-is-flask-restful">What is Flask RESTful</h3>
+<p><strong>Flask-RESTful</strong> is an extension for Flask that adds support for quickly building REST APIs. It is a lightweight abstraction that works with your existing ORM/libraries. Flask-RESTful encourages best practices with minimal setup.</p>
+<p><a href="https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example">https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example</a></p>
+<p><strong>Summary of HTTP Methods for RESTful APIs</strong>
+<a href="https://restfulapi.net/http-methods/">https://restfulapi.net/http-methods/</a></p>
+<pre class="hljs"><code><div>|-----------------------------------------------------------------------------------------------------|
+|  HTTP METHOD  |    CRUD       | ENTIRE COLLECTION (E.G. /USERS)   | SPECIFIC ITEM (E.G. /USERS/123) |
+|---------------|---------------|-----------------------------------|-------------------------------- |
+|               |               |                                   |                                 |
+|               |               |201 (Created), ‘Location’ header   |                                 |
+|     POST      |   CREATE      |with link to /users/{id} containing|    Avoid using POST on          |
+|               |               |new ID.                            |    single resource              |
+|               |               |                                   |                                 |
+|---------------|---------------|-----------------------------------|---------------------------------|
+|               |               |                                   |                                 |
+|               |               |  200 (OK), list of users. Use     | 200 (OK), single user. 404      |
+|      GET      |     READ      |  pagination,sorting and filtering | (Not Found), if ID not found or |
+|               |               |  to navigate big lists.           | invalid.                        |
+|               |               |                                   |                                 |
+|---------------|---------------|-----------------------------------|---------------------------------|
+|               |               |                                   |                                 |
+|               |               |  404 (Not Found), unless you want |                                 |
+|               |               |  to update every resource in the  | 200 (OK) or 204 (No Content).   |
+|      PUT      |Update/Replace |  entire collection of resource.   | Use 404 (Not Found), if ID not  |
+|               |               |                                   | found or invalid.               |
+|               |               |                                   |                                 |
+|---------------|---------------|-----------------------------------|---------------------------------|
+|               |               |                                   |                                 |
+|               |               |                                   |                                 |
+|      PATCH    | Update/Modify |  404 (Not Found), unless you want | 200 (OK) or 204 (No Content).   |
+|               |               |  to modify the collection itself. | Use 404 (Not Found), if ID not  |
+|               |               |                                   | found or invalid.               |
+|               |               |                                   |                                 |
+|---------------|---------------|-----------------------------------|---------------------------------|
+|               |               |                                   |                                 |
+|               |               | 404 (Not Found), unless you want  |    200 (OK). 404 (Not Found)    |
+|     DELETE    |    DELETE     | to delete the whole collection —  |    if ID not found or invalid.  |
+|               |               | use with caution.                 |                                 |
+|               |               |                                   |                                 |
+|---------------|---------------|-----------------------------------|---------------------------------|
+
+</div></code></pre>
+<hr>
+<h3 id="sample-rest-api">Sample Rest API</h3>
+<pre class="hljs"><code><div>
+<span class="hljs-string">"""
+
+ Rest API gives resources to the client using http requests which run through a url on the browser
+ Many professional companies uses REST inside MVC Frame Works such as Django, Rails, Node js, PHP symphoney,...,ect.
+ Flask is what is known as a microservice, it is not a true MVC frame work and is not as bloated with libraries and does
+ not scale as well as a true MVC. MVC is normally used for web sites, but sense this application is on a phone where processing
+ will be done on the device as apposed to the DOM on browsers makes Flask/Flask Restful a sutiable tool for the job
+
+we start with writing a class that inherits from the resouce class of the Flask RESTful frame work
+
+"""</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Users</span><span class="hljs-params">(Resource)</span>:</span>
+<span class="hljs-string">"""
+Rest API's usually will implemnt a subset of the following functions, in Flask RESTful, they need to be explicitly overloaded
+as shown below, and self must be passed as a parameter.
+"""</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">post</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">put</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">pass</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">pass</span>
+
+</div></code></pre>
+
+</body>
+</html>

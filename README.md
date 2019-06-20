@@ -26,17 +26,6 @@ You can [push your change back to Bitbucket with SourceTree](https://confluence.
 3. Latex*Src: \_git fetch && git checkout Latex_src* slack channel is (paper)
 4. REST: _git fetch && git checkout REST_
 
-## Remote Mac Mini Server
-
-**This is only neccessary if you want to compile/develop for iOS on windows.**
-The Mac Mini is hosting a VNC server for screen sharing and an SSH server for file access/remote terminal.
-The VNC screen sharing server can be accessed using any VNC client. One client that is supported is RealVNC.
-
-A Mac Mini server can be publicly accessed using the following information:
-Domain: udivs.ddns.net
-Username: udivs-remote
-Password: udivs-remote
-
 ## Bitbucket Cloud Tutorial
 
 **Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
@@ -48,12 +37,6 @@ _We recommend that you open this README in another tab as you perform the tasks 
 ## Git branch
 
 Once you have the other branches you can run _git branch_ and it should show you all the branches in a list and highlight the branch you are currently working on, it should look something like this:
-
-1. Cordova
-2. REST
-3. DataAnalysis
-4. Latex_Src
-5. master
 
 ### Git Checkout
 
@@ -103,63 +86,7 @@ _deactivate_
 
 ### Client Side
 
-1. Nodejs: <https://nodejs.org/en/>
-2. Apache Cordova: <https://cordova.apache.org/docs/en/latest/>
-3. Bootstrap CSS: <https://getbootstrap.com/>
-4. JQuery and JavaScript: <https://jquery.com/>
-
----
-
-## Getting Started with Cordova
-
-### what is Apache Cordova
-
-Apache Cordova is an open-source mobile development framework. It allows you to use standard web technologies - HTML5, CSS3, and JavaScript for cross-platform development. Applications execute within wrappers targeted to each platform, and rely on standards-compliant API bindings to access each device's capabilities such as sensors, data, network status, etc.
-<https://cordova.apache.org/docs/en/latest/guide/overview/index.html>
-
-### Installing Cordova Build Environment
-
-1. Make sure nodejs is installed <https://nodejs.org/en/>
-2. Make sure Android Studio is installed <https://developer.android.com/studio> once installed click on the Android studio>Preferences>Appearance & Behavior> System Settings>Android SDK check all the boxes starting from Android 9.0 (Pie) up to and including Android 4.4 (kit kat)
-3. Make sure XCode is installed <https://developer.apple.com/xcode/>
-4. Make sure Java JDK 8 is installed <https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html>
-5. Make sure Gradle is installed <https://gradle.org/install/#prerequisites> if you have home brew open terminal and type _brew install gradle_
-6. Install Cordova: open terminal and type _npm install -g cordova_ the -g flag is global so you do not need to be in the project folder
-7. Make sure ios deploy is installed open a terminal and type _sudo npm install -g ios-deploy_ or if you have home brew _brew install ios-deploy_
-8. Make sure cocoaPods is installed <https://cocoapods.org/> if you have ruby installed you can open a terminal and type _gem install cocoapods_
-9. Open terminal and locate your local copy of the project folder and navigate to it **cd /biometric-udivs/UDIVSmobile** in the terminal type _cordova requirements_
-   if all system dependencies are install correctly you will get the following information from the terminal:
-
-```cli
-
-Josephs-MacBook-Air:UDIVSmobile josephcox$ cordova requirements
-
-Requirements check results for android:
-Java JDK: installed 1.8.0
-Android SDK: installed true
-Android target: installed android-28,android-27,android-26,android-25,android-24,android-23,android-22,android-21,android-20,android-19
-Gradle: installed /usr/local/Cellar/gradle/5.4.1/bin/gradle
-
-Requirements check results for browser:
-
-Requirements check results for ios:
-Apple macOS: installed darwin
-Xcode: installed 10.1
-ios-deploy: installed 1.9.4
-CocoaPods: installed 1.6.2
-Josephs-MacBook-Air:UDIVSmobile josephcox$
-
-```
-
-### Cordova Development
-
-Cordova allows us to use web technology to build apps for the browser, desktop, android, and ios devices. To get started place the entire biometric-udivs folder into a text editor of web IDE of your choice and navigate to _/biometric-udivs/UDIVSmobile/www_. All of the application code for the hybrid app is in this folder.
-
-#### Testing the Application in Simulation
-
-1. Browser testing: open the index.html file with web browser of your choice or in a terminal navigate to _/biometric-udivs_ and run _cordova run browser_
-2. ios testing in simulation: open the index.html file with web browser of your choice or in a terminal navigate to _/biometric-udivs_ and run _cordova run ios_
-3. android testing in simulation: open the index.html file with web browser of your choice or in a terminal navigate to _/biometric-udivs_ and run _cordova run android_
+1. Android Develoment Kit
 
 ---
 
@@ -235,6 +162,42 @@ Like any other architectural style, REST also does have it’s own 6 guiding con
 |               |               | use with caution.                 |                                 |
 |               |               |                                   |                                 |
 |---------------|---------------|-----------------------------------|---------------------------------|
+
 ```
 
 ---
+
+### Sample Rest API
+
+```python
+
+"""
+
+ Rest API gives resources to the client using http requests which run through a url on the browser
+ Many professional companies uses REST inside MVC Frame Works such as Django, Rails, Node js, PHP symphoney,...,ect.
+ Flask is what is known as a microservice, it is not a true MVC frame work and is not as bloated with libraries and does
+ not scale as well as a true MVC. MVC is normally used for web sites, but sense this application is on a phone where processing
+ will be done on the device as apposed to the DOM on browsers makes Flask/Flask Restful a sutiable tool for the job
+
+we start with writing a class that inherits from the resouce class of the Flask RESTful frame work
+
+"""
+
+class Users(Resource):
+"""
+Rest API's usually will implemnt a subset of the following functions, in Flask RESTful, they need to be explicitly overloaded
+as shown below, and self must be passed as a parameter.
+"""
+    def get(self):
+        pass
+
+    def post(self):
+        pass
+
+    def put(self):
+        pass
+
+    def delete(self):
+        pass
+
+```
