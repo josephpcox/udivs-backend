@@ -1,0 +1,4 @@
+# Builds and user settings
+/out
+/.idea
+/*.iml
