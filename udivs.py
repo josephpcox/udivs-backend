@@ -1,16 +1,18 @@
 """@author: joseph cox"""
 import os  # for environment and hashing passwords
+import sys
+
 import psycopg2  # for data base connection
+import sendgrid
 from flask import Flask, jsonify, render_template
 from flask_jwt import JWT, jwt_required
 from flask_restful import Resource, Api, reqparse
+from sendgrid import SendGridException
+from sendgrid.helpers.mail import Mail
+
 # costum security functions from local security py
 from security import hash_password, verify_password, authenticate, identity
 from test import test_users_table
-import sys
-import sendgrid
-from sendgrid import SendGridAPIClient, SendGridException
-from sendgrid.helpers.mail import Mail
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -34,7 +36,7 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT * FROM users WHERE users.username == %s', (username))
+                'SELECT * FROM users WHERE users.username = %s', username)
             user_row = cursor.fetchone()
             cursor.close()
         except (Exception, psycopg2.Error) as error:
@@ -81,7 +83,7 @@ class Users(Resource):
             username = request_data['username']
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'DELETE FROM users WHERE users.username=%s;', username)
+                'DELETE FROM users WHERE users.username = %s;', username)
             CONNECTION.commit()
             cursor.close()
         except(Exception, psycopg2.Error) as error:
@@ -91,7 +93,7 @@ class Users(Resource):
 
 
 class CSV(Resource):
-    @jwt_required
+    # @jwt_required
     def get(self):
         """Get the csv file from the database at the route user/csv"""
         try:
@@ -104,6 +106,7 @@ class CSV(Resource):
             cursor.execute(
                 'SELECT csv_file FROM users WHERE users.username = %s;', request_data['username'])
             csv_file = cursor.fetchone()[0]
+            cursor.close()
         except(Exception, psycopg2.Error)as error:
             print(' *Error while connecting to PostgreSQL',
                   error, file=sys.stderr)
@@ -120,7 +123,7 @@ class CSV(Resource):
             parser.add_argument('password', required=True,
                                 type=str, help='password filed is required')
             parser.add_argument('csv_file', required=True,
-                                type=str, help='Blob_Data is the csv data')
+                                type=str, help='csv file string data')
             request_data = parser.parse_args(strict=True)
             username = request_data['username']
             password = request_data['password']
@@ -161,7 +164,7 @@ class Login(Resource):
             CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username, users.password, FROM users WHERE users.username ==%s' % request_data[
+                'SELECT username, password, FROM users WHERE username = %s' % request_data[
                     'username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
@@ -188,7 +191,7 @@ class Admin_Login(Resource):
             CONNECTION = test_users_table()
             cursor = CONNECTION.cursor()
             cursor.execute(
-                'SELECT users.username,users.password,users.admin FROM users WHERE users.username == %s', request_data[
+                'SELECT username,password,admin FROM users WHERE username = %s', request_data[
                     'username'])
             user = cursor.fetchone()[0]
             password = cursor.fetchone()[1]
