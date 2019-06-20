@@ -8,6 +8,8 @@ from flask_restful import Resource, Api, reqparse
 from security import hash_password, verify_password, authenticate, identity
 from test import test_users_table
 import sys
+import sendgrid
+from sendgrid.helpers.mail import *
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -195,6 +197,26 @@ class Admin_Login(Resource):
             print("Error while connecting to PostgreSQL", error)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
+class Enrolment(Resource):
+    def post(self):
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument('email',required=True,type=str,help='email address is a required')
+            parser.add_argument('phone',required = True, type=str,help="phone number is required")
+            request_data = parser.parse_args()
+            sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+            from_email = Email("test@example.com")
+            subject = "Hello World from the SendGrid Python Library!"
+            to_email = Email(request_data['email'])
+            content = Content("text/plain", "Hello, Email!")
+            mail = Mail(from_email, subject, to_email, content)
+            response = sg.client.mail.send.post(request_body=mail.get())
+        except(response.status_code)
+            print(response.body,file=sys.stderr)
+            print(response.headers, file=sys.stderr)
+            return jsonify{'message':'An error has occured','status':'400'}
+        return jsonify{'message':'email sent','status':'200'}
+
 
 # web pages
 @app.route('/')
@@ -213,6 +235,7 @@ api.add_resource(Admin_Login, '/admin/login')
 api.add_resource(Users, '/users')
 api.add_resource(CSV, '/users/csv')
 api.add_resource(Login, '/users/login')
+api.add_resource(Enrolment,'/enroll')
 
 if __name__ == "__main__":
     test_users_table()
