@@ -205,8 +205,7 @@ class Admin_Login(Resource):
 class Enrolment(Resource):
     def post(self):
         try:
-            sg = sendgrid.SendGridAPIClient(
-                apikey=os.environ.get('SENDGRID_API_KEY'))
+            sg = sendgrid.SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
             parser = reqparse.RequestParser()
             parser.add_argument('email', required=True,
                                 type=str, help='email address is a required')
