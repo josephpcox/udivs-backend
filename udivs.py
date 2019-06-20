@@ -9,7 +9,8 @@ from security import hash_password, verify_password, authenticate, identity
 from test import test_users_table
 import sys
 import sendgrid
-from sendgrid.helpers.mail import *
+from sendgrid import SendGridAPIClient, SendGridException
+from sendgrid.helpers.mail import Mail
 
 app = Flask(__name__)  # Create the flask app
 api = Api(app)  # create the api
@@ -128,7 +129,7 @@ class CSV(Resource):
                 'SELECT users.username, users.password FROM users WHERE users.username=%s;', (username,))
             row = cursor.fetchone()
             user = row[0]
-            password_db = row [1]
+            password_db = row[1]
             if user and verify_password(password_db, password):
                 csv_file = request_data['csv_file']
                 cursor.execute(
@@ -136,7 +137,8 @@ class CSV(Resource):
                 CONNECTION.commit()
                 cursor.close()
         except(Exception, psycopg2.Error) as error:
-            print(' *Error while connecting to PostgreSQL',error, file=sys.stderr)
+            print(' *Error while connecting to PostgreSQL',
+                  error, file=sys.stderr)
             return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
         return jsonify({'message': 'csv file has been updated ', 'status': 200})
 
@@ -147,6 +149,7 @@ class CSV(Resource):
 
 class Login(Resource):
     """ Login is a resource for regular accounts to post to to login and varify their credentials"""
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True,
@@ -167,12 +170,13 @@ class Login(Resource):
             if user and verify_password(password, request_password):
                 return jsonify({'token': JWT, 'status': 200})
         except(Exception, psycopg2.error) as error:
-            print("Error while connecting to PostgreSQL", error,file = sys.stderr)
+            print("Error while connecting to PostgreSQL", error, file=sys.stderr)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
 
 class Admin_Login(Resource):
     """ This is a rest class for the admin html page. """
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', required=True,
@@ -197,25 +201,24 @@ class Admin_Login(Resource):
             print("Error while connecting to PostgreSQL", error)
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
+
 class Enrolment(Resource):
     def post(self):
         try:
+            sg = sendgrid.SendGridAPIClient(
+                apikey=os.environ.get('SENDGRID_API_KEY'))
             parser = reqparse.RequestParser()
-            parser.add_argument('email',required=True,type=str,help='email address is a required')
-            parser.add_argument('phone',required = True, type=str,help="phone number is required")
+            parser.add_argument('email', required=True,
+                                type=str, help='email address is a required')
+            parser.add_argument('phone', required=True,
+                                type=str, help='phone number is required')
             request_data = parser.parse_args()
-            sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
-            from_email = Email("test@example.com")
-            subject = "Hello World from the SendGrid Python Library!"
-            to_email = Email(str(request_data['email']))
-            content = Content("text/plain", "Hello, Email!")
-            mail = Mail(from_email, subject, to_email, content)
-            response = sg.client.mail.send.post(request_body=mail.get())
-        except(response.status_code)
-            print(response.body,file=sys.stderr)
-            print(response.headers, file=sys.stderr)
-            return jsonify{'message':'An error has occured','status':'400'}
-        return jsonify{'message':'email sent','status':'200'}
+            message = Mail(from_email='UDIVS-team@UDIVS.com', to_emails=request_data['email'],
+                           subject='Account Registration ', html_content='<strong>and easy to do anywhere, even with Python</strong>')
+            response = sg.send(message)
+            return jsonify({'message': 'email sent', 'status': str(response.status_code)})
+        except(Exception, SendGridException) as error:
+            return jsonify({'message': 'An error has occurred see the logs for more details', 'status': str(response.status_code), 'Error': str(error)})
 
 
 # web pages
@@ -235,7 +238,7 @@ api.add_resource(Admin_Login, '/admin/login')
 api.add_resource(Users, '/users')
 api.add_resource(CSV, '/users/csv')
 api.add_resource(Login, '/users/login')
-api.add_resource(Enrolment,'/enroll')
+api.add_resource(Enrolment, '/enroll')
 
 if __name__ == "__main__":
     test_users_table()
