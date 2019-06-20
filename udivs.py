@@ -148,7 +148,7 @@ class CSV(Resource):
 
 
 class Login(Resource):
-    """ Login is a resource for regular accounts to post to to login and varify their credentials"""
+    """ Login is a resource for regular accounts to post to to login and verify their credentials"""
 
     def post(self):
         parser = reqparse.RequestParser()
