@@ -202,10 +202,10 @@ class Admin_Login(Resource):
             return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
 
 
-class Enrolment(Resource):
+class Enrollment(Resource):
     def post(self):
         try:
-            sg = sendgrid.SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            sg = sendgrid.SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
             parser = reqparse.RequestParser()
             parser.add_argument('email', required=True,
                                 type=str, help='email address is a required')
@@ -217,7 +217,7 @@ class Enrolment(Resource):
             response = sg.send(message)
             return jsonify({'message': 'email sent', 'status': str(response.status_code)})
         except(Exception, SendGridException) as error:
-            return jsonify({'message': 'An error has occurred see the logs for more details', 'status': str(response.status_code), 'Error': str(error)})
+            return jsonify({'message': 'An error has occurred see the logs for more details', 'status': 404, 'Error': str(error)})
 
 
 # web pages
@@ -237,7 +237,7 @@ api.add_resource(Admin_Login, '/admin/login')
 api.add_resource(Users, '/users')
 api.add_resource(CSV, '/users/csv')
 api.add_resource(Login, '/users/login')
-api.add_resource(Enrolment, '/enroll')
+api.add_resource(Enrollment, '/enroll')
 
 if __name__ == "__main__":
     test_users_table()
