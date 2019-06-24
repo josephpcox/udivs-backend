@@ -69,7 +69,7 @@ def login():
     request_data = parser.parse_args(strict=True)
 
     email = request_data['email']  # TODO Validate email formatting
-    password = hash_password(request_data['password'])
+    password = request_data['password']
 
     print('email = ' + email)
     print('password = ' + password)
