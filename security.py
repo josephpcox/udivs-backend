@@ -9,7 +9,7 @@ import bcrypt
 def hash_password(plain_text_password):
     # Hash a password for the first time
     #   (Using bcrypt, the salt is saved into the hash itself)
-    return bcrypt.hashpw(plain_text_password, bcrypt.gensalt())
+    return bcrypt.hashpw(plain_text_password, bcrypt.gensalt().encode('utf-8'))
 
 
 def verify_password(hashed_password, plain_text_password):

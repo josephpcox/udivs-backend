@@ -79,8 +79,11 @@ def login():
     cursor.execute('SELECT id,password FROM users WHERE email = (%s)', (email,))
     row = cursor.fetchone()
 
-    user_id = row[0]
-    authenticated = verify_password(row[1], password)
+    if row is None:
+        authenticated = False
+    else:
+        user_id = row[0]
+        authenticated = verify_password(row[1], password)
 
     cursor.close()
     db_connection.close()
