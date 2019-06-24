@@ -3,7 +3,7 @@
 import binascii
 
 import sendgrid
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -103,6 +103,37 @@ def details():
     # Access the identity of the current user with get_jwt_identity
     user_id = get_jwt_identity()
     return jsonify(logged_in_as=user_id), 200
+
+
+@app.route('/api/account/csv', methods=['GET'])
+@jwt_required
+def get_csv():
+    user_id = get_jwt_identity()
+    db_connection = get_database_connection()
+    cursor = db_connection.cursor()
+    cursor.execute('SELECT csv_file FROM users WHERE id = (%s)', (user_id,))
+
+    row = cursor.fetchone()
+
+    cursor.close()
+    db_connection.close()
+
+    if row is not None:
+        return row[0], 200
+    else:
+        return "", 204
+
+
+@app.route('/api/account/csv', methods=['PUT'])
+@jwt_required
+def update_csv():
+    user_id = get_jwt_identity()
+    db_connection = get_database_connection()
+    cursor = db_connection.cursor()
+    cursor.execute('UPDATE users SET csv_file = (%s) WHERE id = (%s)', (request.data, user_id,))
+    cursor.close()
+    db_connection.close()
+    return jsonify({"msg": "CSV File updated"}), 200
 
 # web pages
 @app.route('/')
