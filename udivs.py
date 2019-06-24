@@ -3,7 +3,7 @@
 import binascii
 
 import sendgrid
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -63,15 +63,16 @@ def register():
 # it to the caller however you choose.
 @app.route('/login', methods=['POST'])
 def login():
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+    parser = reqparse.RequestParser()
+    parser.add_argument('email', required=True, type=str, help='email field is required')
+    parser.add_argument('password', required=True, type=str, help='password field is required')
+    request_data = parser.parse_args(strict=True)
 
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
-    if not email:
-        return jsonify({"msg": "Missing email parameter"}), 400
-    if not password:
-        return jsonify({"msg": "Missing password parameter"}), 400
+    email = request_data['email']  # TODO Validate email formatting
+    password = hash_password(request_data['password'])
+
+    print('email = ' + email)
+    print('password = ' + password)
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
