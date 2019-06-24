@@ -82,7 +82,6 @@ def login():
     user_id = row[0]
     authenticated = verify_password(row[1], password)
 
-    row.close()
     cursor.close()
     db_connection.close()
 
