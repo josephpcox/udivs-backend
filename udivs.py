@@ -21,8 +21,6 @@ app.config['JWT_SECRET_KEY'] = 'a4QLCQqHKeUWghw9ybcRgBtr'
 jwt = JWTManager(app)
 
 api = Api(app)  # create the api
-connection = get_database_connection()
-
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -35,15 +33,17 @@ def register():
     email = request_data['email']  # TODO Validate email formatting
     password = hash_password(request_data['password'])
 
-    cursor = connection.cursor()
+    db_connection = get_database_connection()
+    cursor = db_connection.cursor()
     cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING user_id;', (email, password))
     user_id = cursor.fetchone()[0]
 
     email_token = binascii.hexlify(os.urandom(20)).decode()
     cursor.execute('INSERT INTO email_tokens (email,token) VALUES(%s,%s);', (email, email_token))
 
-    connection.commit()
+    db_connection.commit()
     cursor.close()
+    db_connection.close()
 
     sg = sendgrid.SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
     message = Mail(from_email='UDIVS-team@UDIVS.com', to_emails=email,
@@ -73,7 +73,8 @@ def login():
     if not password:
         return jsonify({"message": "Missing password parameter"}), 400
 
-    cursor = connection.cursor()
+    db_connection = get_database_connection()
+    cursor = db_connection.cursor()
     cursor.execute('SELECT user_id,password FROM users WHERE email = %s', email)
     row = cursor.fetchone()
 
@@ -82,6 +83,7 @@ def login():
 
     row.close()
     cursor.close()
+    db_connection.close()
 
     if authenticated:
         # Identity can be any data that is json serializable
@@ -108,6 +110,7 @@ if __name__ == "__main__":
     connection = get_database_connection()
     initialize_database(connection)
     connection.close()
+    connection = None
 
     # database globals ensures that the database is connected
     # flask prints to the std.error console

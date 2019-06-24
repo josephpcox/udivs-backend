@@ -8,7 +8,6 @@ import psycopg2
 @author John Cameron 
 '''
 
-
 def get_database_connection():
     try:
         database_url = os.environ['DATABASE_URL']
