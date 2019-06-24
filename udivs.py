@@ -76,7 +76,7 @@ def login():
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT id,password FROM users WHERE email = %s', email)
+    cursor.execute('SELECT id,password FROM users WHERE email = (%s)', (email,))
     row = cursor.fetchone()
 
     user_id = row[0]
