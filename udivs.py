@@ -1,250 +1,114 @@
 """@author: joseph cox"""
-import os  # for environment and hashing passwords
-import sys
 
-import psycopg2  # for data base connection
+import binascii
+
 import sendgrid
-from flask import Flask, jsonify, render_template
-from flask_jwt import JWT, jwt_required
-from flask_restful import Resource, Api, reqparse
-from sendgrid import SendGridException
+from flask import Flask, jsonify, render_template, request
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
+from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
 
-# costum security functions from local security py
-from security import hash_password, verify_password, authenticate, identity
-from test import test_users_table
+from database import *
+from security import hash_password, verify_password
 
 app = Flask(__name__)  # Create the flask app
+
+# Setup the Flask-JWT-Extended extension
+app.config['JWT_SECRET_KEY'] = 'a4QLCQqHKeUWghw9ybcRgBtr'
+jwt = JWTManager(app)
+
 api = Api(app)  # create the api
-# generate a random 24 character set for the json web token for secure logins
-app.config['SECRET_KEY'] = os.urandom(24)
-# Json Web Token for security and refreshing
-app.config.update(JWT=JWT(app, authenticate, identity))
+connection = get_database_connection()
 
 
-class Users(Resource):
-    @jwt_required
-    def get(self):
-        """Get all the attributes of one user row from the users table of the database"""
-        try:
-            CONNECTION = test_users_table()
-            # parser does data validation
-            parser = reqparse.RequestParser()
-            parser.add_argument('username', required=True,
-                                type=str, help='username field is required')
-            request_data = parser.parse_args()
-            username = request_data['username']
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT * FROM users WHERE users.username = %s', username)
-            user_row = cursor.fetchone()
-            cursor.close()
-        except (Exception, psycopg2.Error) as error:
-            print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'check the logs for more details', 'Error': str(error)})
-        return jsonify({'user row': user_row, 'status': 200})
+@app.route('/register', methods=['POST'])
+def register():
+    """Creates a new account"""
+    parser = reqparse.RequestParser()
+    parser.add_argument('email', required=True, type=str, help='email field is required')
+    parser.add_argument('password', required=True, type=str, help='password field is required')
+    request_data = parser.parse_args(strict=True)
 
-    def post(self):
-        """Create a user account at user/create endpoint"""
-        try:
-            CONNECTION = test_users_table()
-            parser = reqparse.RequestParser()
-            parser.add_argument('username', required=True,
-                                type=str, help='username field is required')
-            parser.add_argument('password', required=True,
-                                type=str, help='password field is required')
-            request_data = parser.parse_args(strict=True)
-            username = request_data['username']
-            password = hash_password(request_data['password'])
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'INSERT INTO users (username,password) VALUES(%s,%s) RETURNING user_id;', (username, password))
-            user_id = cursor.fetchone()[0]
-            CONNECTION.commit()
-            cursor.close()
-        except(Exception, psycopg2.Error) as error:
-            print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'Check logs for more details', 'Error': str(error), 'status': 500})
-        # rerun status 200 if it worked
-        return jsonify({'message': 'insert successful', 'status': 200})
+    email = request_data['email']  # TODO Validate email formatting
+    password = hash_password(request_data['password'])
 
-    def put(self):  # not sure if we need a put
-        pass
+    cursor = connection.cursor()
+    cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING user_id;', (email, password))
+    user_id = cursor.fetchone()[0]
 
-    @jwt_required
-    def delete(self):
-        """Remove a user account form the database"""
-        try:
-            CONNECTION = test_users_table()
-            parser = reqparse.RequestParser()
-            parser.add_argument('username', required=True,
-                                type=str, help='Username field is required')
-            request_data = parser.parse_args(strict=True)
-            username = request_data['username']
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'DELETE FROM users WHERE users.username = %s;', username)
-            CONNECTION.commit()
-            cursor.close()
-        except(Exception, psycopg2.Error) as error:
-            print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'check the logs for more details', 'Error': str(error)})
-        return jsonify({'message': 'delete successful', 'status': 204})
+    email_token = binascii.hexlify(os.urandom(20)).decode()
+    cursor.execute('INSERT INTO email_tokens (email,token) VALUES(%s,%s);', (email, email_token))
+
+    connection.commit()
+    cursor.close()
+
+    sg = sendgrid.SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
+    message = Mail(from_email='UDIVS-team@UDIVS.com', to_emails=email,
+                   subject='Verify your email address',
+                   html_content='Please <a href="https://udivs.herokuapp.com/email_verify?token='
+                                + email_token + '">click here</a> to verify your email address')
+    response = sg.send(message)
+
+    print('Email sent with status ' + str(response.status_code))
+
+    access_token = create_access_token(identity=user_id)
+    return jsonify(token=access_token), 201
 
 
-class CSV(Resource):
-    # @jwt_required
-    def get(self):
-        """Get the csv file from the database at the route user/csv"""
-        try:
-            CONNECTION = test_users_table()
-            parser = reqparse.RequestParser()
-            parser.add_argument('username', required=True,
-                                type=str, help='username field is required')
-            request_data = parser.parse_args(strict=True)
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT csv_file FROM users WHERE users.username = %s;', request_data['username'])
-            csv_file = cursor.fetchone()[0]
-            cursor.close()
-        except(Exception, psycopg2.Error)as error:
-            print(' *Error while connecting to PostgreSQL',
-                  error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
-        return jsonify({'csv_file': csv_file, 'status': 200})
+# Provide a method to create access tokens. The create_access_token()
+# function is used to actually generate the token, and you can return
+# it to the caller however you choose.
+@app.route('/login', methods=['POST'])
+def login():
+    if not request.is_json:
+        return jsonify({"message": "Missing JSON in request"}), 400
 
-    def put(self):
-        """Every user starts with empty blob data in the table this function is to append to that blob data """
-        try:
-            CONNECTION = test_users_table()
-            parser = reqparse.RequestParser()
-            parser.add_argument('username', required=True,
-                                type=str, help='username field is required')
-            parser.add_argument('password', required=True,
-                                type=str, help='password filed is required')
-            parser.add_argument('csv_file', required=True,
-                                type=str, help='csv file string data')
-            request_data = parser.parse_args(strict=True)
-            username = request_data['username']
-            password = request_data['password']
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT users.username, users.password FROM users WHERE users.username=%s;', (username,))
-            row = cursor.fetchone()
-            user = row[0]
-            password_db = row[1]
-            if user and verify_password(password_db, password):
-                csv_file = request_data['csv_file']
-                cursor.execute(
-                    'UPDATE users SET csv_file = %s WHERE users.username = %s;', (csv_file, username,))
-                CONNECTION.commit()
-                cursor.close()
-        except(Exception, psycopg2.Error) as error:
-            print(' *Error while connecting to PostgreSQL',
-                  error, file=sys.stderr)
-            return jsonify({'message': 'An error has occurred check the logs for more details.', 'Error': str(error), 'status': 404})
-        return jsonify({'message': 'csv file has been updated ', 'status': 200})
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
+    if not email:
+        return jsonify({"message": "Missing email parameter"}), 400
+    if not password:
+        return jsonify({"message": "Missing password parameter"}), 400
 
-    # TODO not sure how to implement or if it is necessary
-    def delete(self):
-        pass
+    cursor = connection.cursor()
+    cursor.execute('SELECT user_id,password FROM users WHERE email = %s', email)
+    row = cursor.fetchone()
+
+    user_id = row[0]
+    authenticated = verify_password(row[1], password)
+
+    row.close()
+    cursor.close()
+
+    if authenticated:
+        # Identity can be any data that is json serializable
+        access_token = create_access_token(identity=user_id)
+        return jsonify(token=access_token), 200
+    else:
+        return jsonify({"message": "Bad username or password"}), 401
 
 
-class Login(Resource):
-    """ Login is a resource for regular accounts to post to to login and verify their credentials"""
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('username', required=True,
-                            type=str, help='username field is required')
-        parser.add_argument('password', required=True,
-                            type=str, help=' password filed is required')
-        request_data = parser.parse_args(strict=True)
-        try:
-            CONNECTION = test_users_table()
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT username, password, FROM users WHERE username = %s' % request_data[
-                    'username'])
-            user = cursor.fetchone()[0]
-            password = cursor.fetchone()[1]
-            request_password = request_data['password']
-            cursor.close()
-            if user and verify_password(password, request_password):
-                return jsonify({'token': JWT, 'status': 200})
-        except(Exception, psycopg2.error) as error:
-            print("Error while connecting to PostgreSQL", error, file=sys.stderr)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
-
-
-class Admin_Login(Resource):
-    """ This is a rest class for the admin html page. """
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('username', required=True,
-                            type=str, help='user name is a required field')
-        parser.add_argument('password', required=True,
-                            type=str, help='password is a required field')
-        request_data = parser.parse_args()
-        try:
-            CONNECTION = test_users_table()
-            cursor = CONNECTION.cursor()
-            cursor.execute(
-                'SELECT username,password,admin FROM users WHERE username = %s', request_data[
-                    'username'])
-            user = cursor.fetchone()[0]
-            password = cursor.fetchone()[1]
-            admin = cursor.fetchone()[2]
-            cursor.close()
-            request_password = request_data['password']
-            if admin and user and verify_password(password, request_password):
-                return jsonify({'token': JWT, 'status': 200})
-        except(Exception, psycopg2.error) as error:
-            print("Error while connecting to PostgreSQL", error)
-            return jsonify({'message': 'invalid credentials check the logs for more details', 'Error': str(error), 'status': 401})
-
-
-class Enrollment(Resource):
-    def post(self):
-        try:
-            sg = sendgrid.SendGridAPIClient(os.environ['SENDGRID_API_KEY'])
-            parser = reqparse.RequestParser()
-            parser.add_argument('email', required=True,
-                                type=str, help='email address is a required')
-            parser.add_argument('phone', required=True,
-                                type=str, help='phone number is required')
-            request_data = parser.parse_args()
-            message = Mail(from_email='UDIVS-team@UDIVS.com', to_emails=request_data['email'],
-                           subject='Account Registration ', html_content='<strong>and easy to do anywhere, even with Python</strong>')
-            response = sg.send(message)
-            return jsonify({'message': 'email sent', 'status': str(response.status_code)})
-        except(Exception, SendGridException) as error:
-            return jsonify({'message': 'An error has occurred see the logs for more details', 'status': 404, 'Error': str(error)})
-
+@app.route('/account', methods=['GET'])
+@jwt_required
+def details():
+    # Access the identity of the current user with get_jwt_identity
+    user_id = get_jwt_identity()
+    return jsonify(logged_in_as=user_id), 200
 
 # web pages
 @app.route('/')
 def home():
     return render_template('enroll.html')
 
-
-@app.route('/admin')
-@jwt_required()
-def admin():
-    return render_template('admin.html')
-
-
-# API routes
-api.add_resource(Admin_Login, '/admin/login')
-api.add_resource(Users, '/users')
-api.add_resource(CSV, '/users/csv')
-api.add_resource(Login, '/users/login')
-api.add_resource(Enrollment, '/enroll')
-
 if __name__ == "__main__":
-    test_users_table()
+    # Initialize the database
+    connection = get_database_connection()
+    initialize_database(connection)
+    connection.close()
+
     # database globals ensures that the database is connected
-    # flask prints to the std.error consol
-    app.run(debug=False, host='0.0.0.0', port=os.environ.get(
-        "PORT", 5000))  # run the flask server
+    # flask prints to the std.error console
+    app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000))  # run the flask server
