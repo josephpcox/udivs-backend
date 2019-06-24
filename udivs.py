@@ -35,7 +35,7 @@ def register():
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING user_id;', (email, password))
+    cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
     user_id = cursor.fetchone()[0]
 
     email_token = binascii.hexlify(os.urandom(20)).decode()
@@ -64,18 +64,18 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     if not request.is_json:
-        return jsonify({"message": "Missing JSON in request"}), 400
+        return jsonify({"msg": "Missing JSON in request"}), 400
 
     email = request.json.get('email', None)
     password = request.json.get('password', None)
     if not email:
-        return jsonify({"message": "Missing email parameter"}), 400
+        return jsonify({"msg": "Missing email parameter"}), 400
     if not password:
-        return jsonify({"message": "Missing password parameter"}), 400
+        return jsonify({"msg": "Missing password parameter"}), 400
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT user_id,password FROM users WHERE email = %s', email)
+    cursor.execute('SELECT id,password FROM users WHERE email = %s', email)
     row = cursor.fetchone()
 
     user_id = row[0]
@@ -90,7 +90,7 @@ def login():
         access_token = create_access_token(identity=user_id)
         return jsonify(token=access_token), 200
     else:
-        return jsonify({"message": "Bad username or password"}), 401
+        return jsonify({"msg": "Bad username or password"}), 401
 
 
 @app.route('/account', methods=['GET'])
