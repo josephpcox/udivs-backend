@@ -22,7 +22,8 @@ jwt = JWTManager(app)
 
 api = Api(app)  # create the api
 
-@app.route('/register', methods=['POST'])
+
+@app.route('/api/register', methods=['POST'])
 def register():
     """Creates a new account"""
     parser = reqparse.RequestParser()
@@ -61,7 +62,7 @@ def register():
 # Provide a method to create access tokens. The create_access_token()
 # function is used to actually generate the token, and you can return
 # it to the caller however you choose.
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     parser = reqparse.RequestParser()
     parser.add_argument('email', required=True, type=str, help='email field is required')
@@ -96,7 +97,7 @@ def login():
         return jsonify({"msg": "Bad username or password"}), 401
 
 
-@app.route('/account', methods=['GET'])
+@app.route('/api/account', methods=['GET'])
 @jwt_required
 def details():
     # Access the identity of the current user with get_jwt_identity
