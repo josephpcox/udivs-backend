@@ -43,7 +43,7 @@ def register():
                                                "response": recaptcha_response,
                                                "remoteip": request.remote_addr})
 
-    if recaptcha_server_response.status_code == 200 and json.load(recaptcha_server_response.content)["success"]:
+    if recaptcha_server_response.status_code == 200 and json.loads(recaptcha_server_response.content)["success"]:
 
         db_connection = get_database_connection()
         cursor = db_connection.cursor()
