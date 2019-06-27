@@ -4,8 +4,9 @@
 # * 'gtrp' and 'gtr' create a GET request with or without query parameters;
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
-GET https://udivs.herokuapp.com/api/account
+
+GET https://udivs.herokuapp.com/api/account/csv
 Accept: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjEzNDQyNzYsIm5iZiI6MTU2MTM0NDI3NiwianRpIjoiYTk0OGU1OWEtZTk0Zi00NTM1LWE1NzMtYzEwM2FkZjA3Mjc0IiwiZXhwIjoxNTYxMzQ1MTc2LCJpZGVudGl0eSI6MSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.Iiq4gkBxCKdJFt_TAWkVz1_MUfSH6EYOupYqaw6MYYs
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1NjEzNDUzNjMsIm5iZiI6MTU2MTM0NTM2MywianRpIjoiMWE5ZjExNmItZTRlYi00M2JjLWIyYmQtNWE0ZjIyNTFjZDQyIiwiZXhwIjoxNTYxMzQ2MjYzLCJpZGVudGl0eSI6MSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.LpqI_T6k0mV5HBF6ScOcmHUqF9HTqt80Ygplz0A1HXI
 
 ###

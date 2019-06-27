@@ -5,7 +5,7 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
-POST https://udivs.herokuapp.com/register
+POST https://udivs.herokuapp.com/api/register
 Content-Type: application/x-www-form-urlencoded
 
 email=jcameron2@mail.usf.edu&password=test
