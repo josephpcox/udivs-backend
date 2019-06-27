@@ -133,7 +133,7 @@ def get_csv():
     db_connection.close()
 
     if row is not None:
-        return jsonify({"csv_file": row[1]}), 200
+        return jsonify({"csv_file": row[0]}), 200
     else:
         return jsonify({"csv_file": ""}), 204
 
