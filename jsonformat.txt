@@ -1,0 +1,5 @@
+{
+    msg: error message or success 
+    status:
+    error: true or false
+}

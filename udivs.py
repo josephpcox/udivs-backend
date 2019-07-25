@@ -2,6 +2,7 @@
 
 import binascii
 import json
+import pandas as pd
 
 import requests
 import sendgrid
@@ -19,9 +20,8 @@ from security import hash_password, verify_password
 app = Flask(__name__)  # Create the flask app
 
 # Setup the Flask-JWT-Extended extension
-app.config['JWT_SECRET_KEY'] = 'a4QLCQqHKeUWghw9ybcRgBtr'
+app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 jwt = JWTManager(app)
-
 api = Api(app)  # create the api
 
 @app.route('/api/register', methods=['POST'])
@@ -39,7 +39,7 @@ def register():
     password = hash_password(request_data['password'])
 
     recaptcha_server_response = requests.post('https://www.google.com/recaptcha/api/siteverify',
-                                              {"secret": "6LcFe6oUAAAAALoJ9VBM3xOtOI-CSV70IL6mRJGk",
+                                              {"secret": os.environ['RECAPTCHA_SECRET'],
                                                "response": recaptcha_response,
                                                "remoteip": request.remote_addr})
 
@@ -118,7 +118,8 @@ def details():
     user_id = get_jwt_identity()
     return jsonify(logged_in_as=user_id), 200
 
-
+# TODO: This will not work, the user should be dending us a csv file to this route and then we update it. 
+# requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file. 
 @app.route('/api/account/csv', methods=['GET'])
 @jwt_required
 def get_csv():
