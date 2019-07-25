@@ -45,10 +45,15 @@ def register():
 
     if recaptcha_server_response.status_code == 200 and json.loads(recaptcha_server_response.content)["success"]:
 
-        db_connection = get_database_connection()
-        cursor = db_connection.cursor()
-        cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
-        user_id = cursor.fetchone()[0]
+        try:
+
+            db_connection = get_database_connection()
+            cursor = db_connection.cursor()
+            cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
+            user_id = cursor.fetchone()[0]
+
+        except psycopg2.errors.UniqueViolation:
+            return jsonify({"msg": "email already registered"}), 409
 
         email_token = binascii.hexlify(os.urandom(20)).decode()
         cursor.execute('INSERT INTO email_tokens (email,token) VALUES(%s,%s);', (email, email_token))
