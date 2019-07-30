@@ -3,7 +3,6 @@
 import binascii
 import json
 import numpy as np
-import pandas as pd
 
 import requests
 import sendgrid

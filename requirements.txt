@@ -12,7 +12,6 @@ matplotlib==2.2.2
 mkl-random==1.0.1
 numpy==1.14.3
 numpydoc==0.8.0
-pandas==0.24.2
 psycopg2-binary==2.8.2
 python-dateutil==2.7.3
 PyJWT==1.4.2
