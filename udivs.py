@@ -2,8 +2,7 @@
 
 import binascii
 import json
-import numpy as np
-
+import numpy
 import requests
 import sendgrid
 from flask import Flask, jsonify, render_template, request
@@ -24,13 +23,17 @@ app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 jwt = JWTManager(app)
 api = Api(app)  # create the api
 
+
 @app.route('/api/register', methods=['POST'])
 def register():
     """Creates a new account"""
     parser = reqparse.RequestParser()
-    parser.add_argument('email', required=True, type=str, help='email field is required')
-    parser.add_argument('password', required=True, type=str, help='password field is required')
-    parser.add_argument('g-recaptcha-response', required=True, type=str, help='recaptcha response is missing')
+    parser.add_argument('email', required=True, type=str,
+                        help='email field is required')
+    parser.add_argument('password', required=True, type=str,
+                        help='password field is required')
+    parser.add_argument('g-recaptcha-response', required=True,
+                        type=str, help='recaptcha response is missing')
 
     request_data = parser.parse_args(strict=True)
 
@@ -49,14 +52,16 @@ def register():
 
             db_connection = get_database_connection()
             cursor = db_connection.cursor()
-            cursor.execute('INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
+            cursor.execute(
+                'INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
             user_id = cursor.fetchone()[0]
 
         except psycopg2.errors.UniqueViolation:
             return jsonify({"msg": "email already registered"}), 409
 
         email_token = binascii.hexlify(os.urandom(20)).decode()
-        cursor.execute('INSERT INTO email_tokens (email,token) VALUES(%s,%s);', (email, email_token))
+        cursor.execute(
+            'INSERT INTO email_tokens (email,token) VALUES(%s,%s);', (email, email_token))
 
         db_connection.commit()
         cursor.close()
@@ -84,8 +89,10 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     parser = reqparse.RequestParser()
-    parser.add_argument('email', required=True, type=str, help='email field is required')
-    parser.add_argument('password', required=True, type=str, help='password field is required')
+    parser.add_argument('email', required=True, type=str,
+                        help='email field is required')
+    parser.add_argument('password', required=True, type=str,
+                        help='password field is required')
     request_data = parser.parse_args(strict=True)
 
     email = request_data['email']  # TODO Validate email formatting
@@ -96,7 +103,8 @@ def login():
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT id,password FROM users WHERE email = (%s)', (email,))
+    cursor.execute(
+        'SELECT id,password FROM users WHERE email = (%s)', (email,))
     row = cursor.fetchone()
 
     if row is None:
@@ -123,8 +131,10 @@ def details():
     user_id = get_jwt_identity()
     return jsonify(logged_in_as=user_id), 200
 
-# TODO: This will not work, the user should be dending us a csv file to this route and then we update it. 
-# requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file. 
+# TODO: This will not work, the user should be dending us a csv file to this route and then we update it.
+# requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file.
+
+
 @app.route('/api/account/csv', methods=['GET'])
 @jwt_required
 def get_csv():
@@ -150,7 +160,8 @@ def update_csv():
     user_id = get_jwt_identity()
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('UPDATE users SET csv_file = (%s) WHERE id = (%s)', (request.data, user_id,))
+    cursor.execute(
+        'UPDATE users SET csv_file = (%s) WHERE id = (%s)', (request.data, user_id,))
     cursor.close()
     db_connection.close()
     return jsonify({"msg": "CSV File updated"}), 200
@@ -159,14 +170,16 @@ def update_csv():
 @app.route('/api/verify_email', methods=['POST'])
 def verify_email():
     parser = reqparse.RequestParser()
-    parser.add_argument('token', required=True, type=str, help='token field is required')
+    parser.add_argument('token', required=True, type=str,
+                        help='token field is required')
     request_data = parser.parse_args(strict=True)
 
     token = request_data['token']
 
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT email FROM email_tokens WHERE token = (%s)', (token,))
+    cursor.execute(
+        'SELECT email FROM email_tokens WHERE token = (%s)', (token,))
     row = cursor.fetchone()
 
     cursor.close()
@@ -176,12 +189,15 @@ def verify_email():
         return jsonify({"msg": "Invalid Token"}), 400
     else:
         cursor = db_connection.cursor()
-        cursor.execute('UPDATE users SET email_verified = TRUE WHERE email = (%s)', (row[0],))
+        cursor.execute(
+            'UPDATE users SET email_verified = TRUE WHERE email = (%s)', (row[0],))
         cursor.close()
         db_connection.close()
         return jsonify({"msg": "Email Verified"}), 200
 
 # web pages
+
+
 @app.route('/')
 def home():
     return render_template('enroll.html')
@@ -190,6 +206,7 @@ def home():
 @app.route('/email_verify')
 def email_verify():
     return render_template('email_verify.html')
+
 
 if __name__ == "__main__":
     # Initialize the database
@@ -200,4 +217,5 @@ if __name__ == "__main__":
 
     # database globals ensures that the database is connected
     # flask prints to the std.error console
-    app.run(debug=False, host='0.0.0.0', port=os.environ.get("PORT", 5000))  # run the flask server
+    app.run(debug=False, host='0.0.0.0', port=os.environ.get(
+        "PORT", 5000))  # run the flask server
