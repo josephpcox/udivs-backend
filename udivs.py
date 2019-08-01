@@ -3,6 +3,7 @@
 import binascii
 import json
 import numpy
+import pandas
 import requests
 import sendgrid
 from flask import Flask, jsonify, render_template, request
