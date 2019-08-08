@@ -1,4 +1,6 @@
-"""@author: joseph cox"""
+"""@author: joseph cox
+   @auhtor: John cameron
+"""
 
 import binascii
 import json
@@ -13,7 +15,6 @@ from flask_jwt_extended import (
 )
 from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
-
 from database import *
 from security import hash_password, verify_password
 
