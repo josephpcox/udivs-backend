@@ -14,6 +14,7 @@ from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
 )
+from werkzeug.utils import secure_filename
 from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
 from database import *
@@ -163,17 +164,19 @@ def get_csv():
 @jwt_required
 def update_csv():
     user_id = get_jwt_identity()
-    parser = reqparse.RequestParser()
-    parser.add_argument('file-name', required=True, type=str,
-                        help='email field is required')
-    request_data = parser.parse_args(strict=True)
     s3 = boto3.client('s3')
-    filename = request_data['file-name']
-    bucket_name = os.environ['S3_BUCKET']
-    # Uploads the given file using a managed uploader, which will split up large
-    # files automatically and upload parts in parallel.
-    s3.upload_file(filename, bucket_name, filename)
-    return jsonify({'message': 'File upload successful.'}), 200
+    file = request.files['file']
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        bucket_name = os.environ['S3_BUCKET']
+        # Uploads the given file using a managed uploader, which will split up large
+        # files automatically and upload parts in parallel.
+        s3.upload_file(filename, bucket_name, filename)
+        return jsonify({'message': 'File upload successful.'}), 201
+    else:
+        return jsonify({'message': 'File upload unsuccessful'}), 400
 
 
 @app.route('/api/verify_email', methods=['POST'])
