@@ -8,6 +8,7 @@ import numpy
 import pandas
 import requests
 import sendgrid
+import boto3
 from flask import Flask, jsonify, render_template, request
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
@@ -97,7 +98,7 @@ def login():
                         help='password field is required')
     request_data = parser.parse_args(strict=True)
 
-    email = request_data['email']  # TODO Validate email formatting
+    email = request_data['email']        # TODO Validate email formatting
     password = request_data['password']
 
     print('email = ' + email)
@@ -155,18 +156,24 @@ def get_csv():
     else:
         return jsonify({"csv_file": ""}), 204
 
+# TODO This is going to need to be rewritten -------------------------------------------------------
+
 
 @app.route('/api/account/csv', methods=['PUT'])
 @jwt_required
 def update_csv():
     user_id = get_jwt_identity()
-    db_connection = get_database_connection()
-    cursor = db_connection.cursor()
-    cursor.execute(
-        'UPDATE users SET csv_file = (%s) WHERE id = (%s)', (request.data, user_id,))
-    cursor.close()
-    db_connection.close()
-    return jsonify({"msg": "CSV File updated"}), 200
+    parser = reqparse.RequestParser()
+    parser.add_argument('file-name', required=True, type=str,
+                        help='email field is required')
+    request_data = parser.parse_args(strict=True)
+    s3 = boto3.client('s3')
+    filename = request_data['file-name']
+    bucket_name = os.environ['S3_BUCKET']
+    # Uploads the given file using a managed uploader, which will split up large
+    # files automatically and upload parts in parallel.
+    s3.upload_file(filename, bucket_name, filename)
+    return jsonify({'message': 'File upload successful.'}), 200
 
 
 @app.route('/api/verify_email', methods=['POST'])
@@ -182,8 +189,8 @@ def verify_email():
     cursor = db_connection.cursor()
     cursor.execute(
         'SELECT email FROM email_tokens WHERE token = (%s)', (token,))
-    row = cursor.fetchone()
 
+    row = cursor.fetchone()
     cursor.close()
 
     if row is None:
