@@ -14,6 +14,7 @@ COPY *.py /app/
 
 WORKDIR /app
 
+RUN pip3 install --upgrade pip3
 RUN pip3 install -r requirements.txt
 
 ENTRYPOINT [ "python3" ]
