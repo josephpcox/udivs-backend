@@ -1,22 +1,13 @@
-FROM ubuntu:latest
-
+FROM python:3.7.4
 MAINTAINER UDIVS
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get install -y python3-pip python3-dev
+WORKDIR /usr/local/bin
 
-# We copy just the requirements.txt first to leverage Docker cache
-COPY ./requirements.txt /app/requirements.txt
+COPY requirements.txt .
+COPY templates ./template/
+COPY static ./static/
+COPY *.py ./
 
-# Copy the rest of the files
-COPY templates /app/template/
-COPY static /app/static/
-COPY *.py /app/
-
-WORKDIR /app
-
-RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT [ "python3" ]
-
-CMD [ "udivs.py" ]
+CMD ["udivs.py"]
