@@ -9,6 +9,7 @@ Flask-User==1.0.1.5
 flask-jwt-extended==3.18.2
 Flask==1.0.2
 jwt==0.6.1
+cryptography==2.2.2
 matplotlib==2.2.2
 mkl-random==1.0.1
 numba==0.38.0
@@ -17,7 +18,7 @@ numpy==1.14.3
 pandas==0.23.0
 psycopg2-binary==2.8.2
 python-dateutil==2.7.3
-PyJWT==1.4.2
+PyJWT>=1.6.4
 s3transfer==0.2.1
 seaborn==0.8.1
 Send2Trash==1.5.0
