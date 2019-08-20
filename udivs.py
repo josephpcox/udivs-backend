@@ -1,7 +1,7 @@
 """@author: joseph cox
    @auhtor: John cameron
 """
-
+import sys
 import binascii
 import json
 import numpy
