@@ -13,6 +13,7 @@ RUN pip3 install numpy
 RUN pip3 install pandas
 RUN pip3 install Flask-RESTful
 RUN pip3 install requests
+RUN pip3 install Flask-JWT
 RUN pip3 install flask-jwt-extended
 RUN pip3 install PyJWT
 RUN pip3 install sendgrid
