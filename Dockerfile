@@ -4,7 +4,7 @@ MAINTAINER UDIVS
 WORKDIR /usr/local/bin
 
 COPY requirements.txt .
-COPY templates ./template/
+COPY templates ./templates/
 COPY static ./static/
 COPY *.py ./
 
