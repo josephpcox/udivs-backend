@@ -18,14 +18,14 @@ from werkzeug.utils import secure_filename
 from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
 from database import *
-from security import hash_password, verify_password,allowed_file
-
+from security import hash_password, verify_password, allowed_file
 app = Flask(__name__)  # Create the flask app
 
 # Setup the Flask-JWT-Extended extension
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 jwt = JWTManager(app)
 api = Api(app)  # create the api
+app.config['UPLOAD_FOLDER'] = 'uploads'
 
 
 @app.route('/api/register', methods=['POST'])
@@ -156,7 +156,7 @@ def get_csv():
         s3 = boto3.client('s3')
         bucket_name = os.environ['S3_BUCKET']
         filename = username
-        
+
     else:
         return 204
 
@@ -177,6 +177,7 @@ def update_csv():
         filename = secure_filename(file.filename)
         print('FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         print('BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
@@ -216,6 +217,8 @@ def verify_email():
         return jsonify({"msg": "Email Verified"}), 200
 
 # web pages
+
+
 @app.route('/')
 def home():
     return render_template('enroll.html')
