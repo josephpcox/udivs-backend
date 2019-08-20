@@ -22,5 +22,7 @@ RUN pip3 install bcrypt
 RUN pip3 install seaborn
 RUN pip3 install Send2Trash
 RUN pip3 install unicodecsv
+RUN pip install psycopg2 
+
 
 CMD ["udivs.py"]
