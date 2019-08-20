@@ -19,7 +19,6 @@ RUN pip3 install PyJWT
 RUN pip3 install sendgrid
 RUN pip3 install s3transfer
 RUN pip3 install bcrypt
-RUN pip3 install jwt
 RUN pip3 install seaborn
 RUN pip3 install Send2Trash
 RUN pip3 install unicodecsv
