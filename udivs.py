@@ -163,7 +163,7 @@ def get_csv():
 # TODO This is going to need to be rewritten -------------------------------------------------------
 
 
-@app.route('/api/account/csv', methods=['PUT'])
+@app.route('/api/account/csv', methods=['POST'])
 # @jwt_required
 def update_csv():
     # user_id = get_jwt_identity()
