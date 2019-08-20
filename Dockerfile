@@ -12,6 +12,7 @@ RUN pip3 install boto3
 RUN pip3 install numpy
 RUN pip3 install pandas
 RUN pip3 install Flask-RESTful
+RUN pip3 install requests
 RUN pip3 install flask-jwt-extended
 RUN pip3 install sendgrid
 RUN pip3 install s3transfer
