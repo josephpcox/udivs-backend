@@ -168,20 +168,25 @@ def get_csv():
 def update_csv():
     # user_id = get_jwt_identity()
     s3 = boto3.client('s3')
-    print('S3 OBJECT CREATED')
+    print('S3 OBJECT CREATED',sys.stdout)
     file = request.files['file']
-    print('FILE IS REQUEST.FILE DIC')
+    print('FILE IS REQUEST.FILE DIC',sys.stdout)
     # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        print('FILE HAS A SECURE FILE NAME')
+        print('FILE HAS A SECURE FILE NAME',sys.stdout)
         bucket_name = os.environ['S3_BUCKET']
         temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_file)
-        print('BUCKET IS GRABED FROM THE SYS ENVIORON')
+        print('BUCKET IS GRABED FROM THE SYS ENVIORON',sys.stdout)
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
+        print('PRINTING OUT VARIABLES.......',sys.stdout)
+        print(bucket_name,sys.stdout)
+        print(filename,sys.stdout)
+        print(str(app.config['UPLOAD_FOLDER']),sys.stdout)
+
         s3.upload_file(filename, bucket_name, filename)
         print('file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
