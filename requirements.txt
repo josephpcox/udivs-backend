@@ -13,8 +13,6 @@ cryptography==2.2.2
 matplotlib==2.2.2
 numba==0.38.0
 numexpr==2.6.5
-numpy==1.14.3
-pandas==0.23.0
 psycopg2-binary==2.8.2
 python-dateutil==2.7.3
 PyJWT>=1.6.4
