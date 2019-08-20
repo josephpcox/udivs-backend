@@ -177,7 +177,8 @@ def update_csv():
         filename = secure_filename(file.filename)
         print('FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(temp_file)
         print('BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
