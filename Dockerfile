@@ -8,8 +8,17 @@ COPY templates ./template/
 COPY static ./static/
 COPY *.py ./
 
+RUN pip3 install boto3
 RUN pip3 install numpy
 RUN pip3 install pandas
-RUN pip3 install -r requirements.txt
+RUN pip3 install Flask-RESTful
+RUN pip3 install flask-jwt-extended
+RUN pip3 install sendgrid
+RUN pip3 install s3transfer
+RUN pip3 install bcrypt
+RUN pip3 install jwt
+RUN pip3 install seaborn
+RUN pip3 install Send2Trash
+RUN pip3 install unicodecsv
 
 CMD ["udivs.py"]
