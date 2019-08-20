@@ -145,7 +145,7 @@ def get_csv():
     user_id = get_jwt_identity()
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT csv_file FROM users WHERE id = (%s)', (user_id,))
+    cursor.execute('SELECT  FROM users WHERE id = (%s)', (user_id,))
 
     row = cursor.fetchone()
 
@@ -153,17 +153,20 @@ def get_csv():
     db_connection.close()
 
     if row is not None:
-        return jsonify({"csv_file": row[0]}), 200
+        s3 = boto3.client('s3')
+        bucket_name = os.environ['S3_BUCKET']
+        filename = username
+        
     else:
-        return jsonify({"csv_file": ""}), 204
+        return 204
 
 # TODO This is going to need to be rewritten -------------------------------------------------------
 
 
 @app.route('/api/account/csv', methods=['PUT'])
-@jwt_required
+# @jwt_required
 def update_csv():
-    user_id = get_jwt_identity()
+    # user_id = get_jwt_identity()
     s3 = boto3.client('s3')
     file = request.files['file']
     # if user does not select file
@@ -208,8 +211,6 @@ def verify_email():
         return jsonify({"msg": "Email Verified"}), 200
 
 # web pages
-
-
 @app.route('/')
 def home():
     return render_template('enroll.html')
