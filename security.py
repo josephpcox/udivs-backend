@@ -7,6 +7,8 @@ import os
 @author John Cameron 
 '''
 
+ALLOWED_EXTENSIONS = {'txt', 'csv'}
+
 
 # TODO Use bcrypt
 def hash_password(password):
