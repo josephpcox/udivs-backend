@@ -18,7 +18,7 @@ from werkzeug.utils import secure_filename
 from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
 from database import *
-from security import hash_password, verify_password
+from security import hash_password, verify_password,allowed_file
 
 app = Flask(__name__)  # Create the flask app
 
@@ -166,7 +166,7 @@ def update_csv():
     user_id = get_jwt_identity()
     s3 = boto3.client('s3')
     file = request.files['file']
-    # if user does not select file, browser also
+    # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
