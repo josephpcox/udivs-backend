@@ -190,8 +190,8 @@ def update_csv():
         log.error(msg=bucket_name)
         log.error(msg=filename)
         log.error(msg=str(app.config['UPLOAD_FOLDER']))
-
-        s3.upload_file(filename, bucket_name, filename)
+        log.error(msg=temp_file)
+        s3.upload_file(temp_file, bucket_name, filename)
         log.error(msg='file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
     else:
