@@ -1,6 +1,9 @@
-"""@author: joseph cox
-   @auhtor: John cameron
-"""
+'''
+    @author: joseph cox
+    @author: John cameron
+
+    UDIVS REST API backend for the android application. 
+'''
 import logging
 import os
 import sys
@@ -23,7 +26,7 @@ from database import *
 from security import hash_password, verify_password, allowed_file
 app = Flask(__name__)  # Create the flask app
 
-# logging configeration
+# logging configeration for error logs, print statements and debugging information  
 logging.basicConfig(handlers=[logging.StreamHandler()])
 log = logging.getLogger('test')
 
@@ -36,7 +39,11 @@ app.config['UPLOAD_FOLDER'] = 'uploads'
 
 @app.route('/api/register', methods=['POST'])
 def register():
-    """Creates a new account"""
+    '''
+        Sends out an automated email with a link for the user's email, the email and 
+        the recaptcha are used to make sure automated scripts will not be able to flood 
+        the database with fake users.
+    '''
     parser = reqparse.RequestParser()
     parser.add_argument('email', required=True, type=str,
                         help='email field is required')
@@ -57,7 +64,6 @@ def register():
                                                "remoteip": request.remote_addr})
 
     if recaptcha_server_response.status_code == 200 and json.loads(recaptcha_server_response.content)["success"]:
-
         try:
 
             db_connection = get_database_connection()
@@ -65,7 +71,6 @@ def register():
             cursor.execute(
                 'INSERT INTO users (email,password) VALUES(%s,%s) RETURNING id;', (email, password))
             user_id = cursor.fetchone()[0]
-
         except psycopg2.errors.UniqueViolation:
             return jsonify({"msg": "email already registered"}), 409
 
@@ -98,6 +103,11 @@ def register():
 # it to the caller however you choose.
 @app.route('/api/login', methods=['POST'])
 def login():
+    '''
+        Since the system is just a simulation to see if a UDIVS system is feasible
+        the genuine users will be required to login to the system to ensure tht good data is 
+        being received for the correct rates.
+    '''
     parser = reqparse.RequestParser()
     parser.add_argument('email', required=True, type=str,
                         help='email field is required')
@@ -143,8 +153,6 @@ def details():
 
 # TODO: This will not work, the user should be dending us a csv file to this route and then we update it.
 # requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file.
-
-
 @app.route('/api/account/csv', methods=['GET'])
 @jwt_required
 def get_csv():
@@ -166,33 +174,27 @@ def get_csv():
     else:
         return 204
 
-# TODO This is going to need to be rewritten -------------------------------------------------------
 @app.route('/api/account/csv', methods=['POST'])
-# @jwt_required
+@jwt_required
 def update_csv():
-    # user_id = get_jwt_identity()
+    '''
+        Gets a csv data file from the client and stores it in a amazon s3 bucket. The 
+        CSV file should contain all of the user device interaction data for one enrolled 
+        user.
+    '''
+    user_id = get_jwt_identity()
     s3 = boto3.client('s3')
-    log.error(msg='S3 object creted')
     file = request.files['file']
-    log.error(msg='FILE IS REQUEST.FILE DIC')
     # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        log.error(msg='FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
         temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_file)
-        log.error(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
-        log.error(msg='PRINTING OUT VARIABLES.......')
-        log.error(msg=bucket_name)
-        log.error(msg=filename)
-        log.error(msg=str(app.config['UPLOAD_FOLDER']))
-        log.error(msg=temp_file)
         s3.upload_file(temp_file, bucket_name, filename)
-        log.error(msg='file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
     else:
         return jsonify({'message': 'File upload unsuccessful'}), 400
@@ -200,6 +202,11 @@ def update_csv():
 
 @app.route('/api/verify_email', methods=['POST'])
 def verify_email():
+    ''' 
+        verifies that the user gave a good email and that the user exists
+        once verified the user will be stored in the database and enrolled in 
+        the UDIVS system.
+    '''
     parser = reqparse.RequestParser()
     parser.add_argument('token', required=True, type=str,
                         help='token field is required')
@@ -227,12 +234,9 @@ def verify_email():
         return jsonify({"msg": "Email Verified"}), 200
 
 # web pages
-
-
 @app.route('/')
 def home():
     return render_template('enroll.html')
-
 
 @app.route('/email_verify')
 def email_verify():
@@ -245,7 +249,6 @@ if __name__ == "__main__":
     initialize_database(connection)
     connection.close()
     connection = None
-
     # database globals ensures that the database is connected
     # flask prints to the std.error console
     app.run(debug=False, host='0.0.0.0', port=os.environ.get(
