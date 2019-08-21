@@ -25,7 +25,7 @@ app = Flask(__name__)  # Create the flask app
 
 # logging configeration
 logging.basicConfig(handlers=[logging.StreamHandler()])
-
+log = logging.getLogger('test')
 
 # Setup the Flask-JWT-Extended extension
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
@@ -172,27 +172,27 @@ def get_csv():
 def update_csv():
     # user_id = get_jwt_identity()
     s3 = boto3.client('s3')
-    logging.debug(msg='S3 object creted')
+    log.error(msg='S3 object creted')
     file = request.files['file']
-    logging.debug(msg='FILE IS REQUEST.FILE DIC')
+    log.error(msg='FILE IS REQUEST.FILE DIC')
     # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        logging.debug(msg='FILE HAS A SECURE FILE NAME')
+        log.error(msg='FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
         temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_file)
-        logging.debug(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
+        log.error(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
-        logging.debug(msg='PRINTING OUT VARIABLES.......')
-        logging.debug(msg=bucket_name)
-        logging.debug(msg=filename)
-        logging.debug(msg=str(app.config['UPLOAD_FOLDER']))
+        log.error(msg='PRINTING OUT VARIABLES.......')
+        log.error(msg=bucket_name)
+        log.error(msg=filename)
+        log.error(msg=str(app.config['UPLOAD_FOLDER']))
 
         s3.upload_file(filename, bucket_name, filename)
-        logging.debug(msg='file upload is complete')
+        log.error(msg='file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
     else:
         return jsonify({'message': 'File upload unsuccessful'}), 400
