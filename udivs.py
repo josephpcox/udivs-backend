@@ -1,7 +1,6 @@
 '''
     @author: joseph cox
     @author: John cameron
-
     UDIVS REST API backend for the android application. 
 '''
 import logging

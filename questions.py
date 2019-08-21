@@ -176,14 +176,15 @@ def getOptions(n):
         UDIVS survey.
     '''
     options = []
+    q_string = '' # empty string to be returned
     # question options for "which app did you use most recently
     if n == 0:
         # Which app did you use most recently?
         ans = getRecentApp()
         options.append(ans)
         count = 1
-        print('Which app did you use most recently?\n')
-        #this loop gives an array of answers called options for the user to choose from
+        q_string = 'Which app did you use most recently ?'
+        # this loop gives an array of answers called options for the user to choose from
         day = somDay_df['Activity'].dropna()
         for x in day:
             flag = 0
@@ -197,7 +198,7 @@ def getOptions(n):
                 if count == 4:
                     break
         random.shuffle(options,random.random)
-        return ans,options
+        return q_string,ans,options
 
     elif n == 1:
        # What place were you at most recently?
@@ -205,7 +206,7 @@ def getOptions(n):
        options.append(ans)
        count = 1
        locData = somDay_df['Place'].dropna()
-       print('What place were you at most recently?\n')
+       q_string = 'What place were you at most recently ?'
        # This loop gives an array of answers called options for the user to choose from
        for x in locData:
            flag = 0
@@ -218,16 +219,15 @@ def getOptions(n):
            if count == 4:
                break
        random.shuffle(options,random.random)
-       return ans,options
+       return q_string,ans,options
 
     elif n == 2:
         # which place were you at around:(time) ?
-        
         time_loc = getTodayLoc(data)
         ans_data = time_loc.sample(n=1)
         ans = ans_data['Place'].iloc[0]
         options.append(ans)
-        print('which place were you at around', getHourTime(ans_data), 'today\n')
+        q_string = 'Which place were you at around', getHourTime(ans_data), 'today ?'
         dummy_data = getLocation(data)
         count = 1
         while count < 4:
@@ -243,7 +243,7 @@ def getOptions(n):
                 options.append(place)
                 count = count + 1
         random.shuffle(options,random.random)
-        return ans,options
+        return q_string,ans,options
 
     elif n == 3:
         # Which of these places did you go to yesterday ?
@@ -252,7 +252,7 @@ def getOptions(n):
         ans = ans_data['Place'].iloc[0]
         options.append(ans)
         placesVisited = checkLocList(data)
-        print('Which of these places did you go to yesterday?\n')
+        q_string = 'Which of these places did you go to yesterday ?'
         dummy_data = getLocation(data)
         count = 1
         while count < 4:
@@ -271,7 +271,7 @@ def getOptions(n):
                 options.append(place)
                 count = count + 1
         random.shuffle(options,random.random)
-        return ans,options
+        return q_string,ans,options
     
     elif n == 4:
         # About how long did you use __ for ?
@@ -296,7 +296,7 @@ def getOptions(n):
         return ans,options
     elif n ==5:
         # which app did you use most frequently today ?
-        print("Which app did you use most frequently today?")
+        q_string = 'Which app did you use most frequently today ?'
         applicationList = []
         count = 1
         day = somDay_df['Activity'].dropna()
@@ -319,7 +319,7 @@ def getOptions(n):
                 if count == 4:
                     break
         random.shuffle(options,random.random)
-        return ans,options
+        return q_string,ans,options
 
 data = pd.read_csv('../../userdevice_data/Joe_Data/Smarter_time/timeslots.csv')
 
