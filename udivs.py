@@ -166,34 +166,32 @@ def get_csv():
         return 204
 
 # TODO This is going to need to be rewritten -------------------------------------------------------
-
-
 @app.route('/api/account/csv', methods=['POST'])
 # @jwt_required
 def update_csv():
     # user_id = get_jwt_identity()
     s3 = boto3.client('s3')
-    log.info(msg='S3 object creted')
+    log.debug(msg='S3 object creted')
     file = request.files['file']
-    log.info(msg='FILE IS REQUEST.FILE DIC')
+    log.debug(msg='FILE IS REQUEST.FILE DIC')
     # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        log.info(msg='FILE HAS A SECURE FILE NAME')
+        log.debug(msg='FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
         temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_file)
-        log.info(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
+        log.debug(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
-        log.info(msg='PRINTING OUT VARIABLES.......')
-        log.info(msg=bucket_name)
-        log.info(msg=filename)
-        log.info(msg=str(app.config['UPLOAD_FOLDER']))
+        log.debug(msg='PRINTING OUT VARIABLES.......')
+        log.debug(msg=bucket_name)
+        log.debug(msg=filename)
+        log.debug(msg=str(app.config['UPLOAD_FOLDER']))
 
         s3.upload_file(filename, bucket_name, filename)
-        log.info(msg='file upload is complete')
+        log.debug(msg='file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
     else:
         return jsonify({'message': 'File upload unsuccessful'}), 400
