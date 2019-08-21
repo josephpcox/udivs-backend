@@ -1,6 +1,8 @@
 """@author: joseph cox
    @auhtor: John cameron
 """
+import logging
+import os
 import sys
 import binascii
 import json
@@ -21,6 +23,9 @@ from database import *
 from security import hash_password, verify_password, allowed_file
 app = Flask(__name__)  # Create the flask app
 
+# logging configeration
+logging.basicConfig(handlers=[logging.StreamHandler()])
+log = logging.getLogger('REST')
 # Setup the Flask-JWT-Extended extension
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 jwt = JWTManager(app)
@@ -168,27 +173,27 @@ def get_csv():
 def update_csv():
     # user_id = get_jwt_identity()
     s3 = boto3.client('s3')
-    print('S3 OBJECT CREATED',sys.stdout)
+    log.info(msg='S3 object creted')
     file = request.files['file']
-    print('FILE IS REQUEST.FILE DIC',sys.stdout)
+    log.info(msg='FILE IS REQUEST.FILE DIC')
     # if user does not select file
     # submit an empty part without filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        print('FILE HAS A SECURE FILE NAME',sys.stdout)
+        log.info(msg='FILE HAS A SECURE FILE NAME')
         bucket_name = os.environ['S3_BUCKET']
         temp_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(temp_file)
-        print('BUCKET IS GRABED FROM THE SYS ENVIORON',sys.stdout)
+        log.info(msg='BUCKET IS GRABED FROM THE SYS ENVIORON')
         # Uploads the given file using a managed uploader, which will split up large
         # files automatically and upload parts in parallel.
-        print('PRINTING OUT VARIABLES.......',sys.stdout)
-        print(bucket_name,sys.stdout)
-        print(filename,sys.stdout)
-        print(str(app.config['UPLOAD_FOLDER']),sys.stdout)
+        log.info(msg='PRINTING OUT VARIABLES.......')
+        log.info(msg=bucket_name)
+        log.info(msg=filename)
+        log.info(msg=str(app.config['UPLOAD_FOLDER']))
 
         s3.upload_file(filename, bucket_name, filename)
-        print('file upload is complete')
+        log.info(msg='file upload is complete')
         return jsonify({'message': 'File upload successful.'}), 201
     else:
         return jsonify({'message': 'File upload unsuccessful'}), 400
