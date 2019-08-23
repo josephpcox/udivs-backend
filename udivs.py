@@ -146,29 +146,31 @@ def login():
 @app.route('/api/account', methods=['GET'])
 @jwt_required
 def details():
-    # Access the identity of the current user with get_jwt_identity
+    '''
+        Access the identity of the current user with get_jwt_identity
+    '''
     user_id = get_jwt_identity()
     return jsonify(logged_in_as=user_id), 200
 
 # TODO: This will not work, the user should be dending us a csv file to this route and then we update it.
 # requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file.
-@app.route('/api/account/csv', methods=['GET'])
+@app.route('/api/account/questions', methods=['GET'])
 @jwt_required
 def get_csv():
     user_id = get_jwt_identity()
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
-    cursor.execute('SELECT  FROM users WHERE id = (%s)', (user_id,))
-
+    cursor.execute('SELECT  id FROM users WHERE id = (%s)', (user_id,))
     row = cursor.fetchone()
-
     cursor.close()
     db_connection.close()
 
     if row is not None:
         s3 = boto3.client('s3')
         bucket_name = os.environ['S3_BUCKET']
-        filename = username
+        filename = row[0]
+        s3 = boto3.resource('s3')
+        s3.meta.client.download_file(bucket_name, filename, '/tmp/hello.txt')
 
     else:
         return 204
