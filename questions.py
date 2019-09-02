@@ -340,9 +340,10 @@ day = data.loc[last_index, 'Day']
 somDay_df = data[data.Day == day]
 #-------------------------------------------------------------------------------------------------------------------------#
 '''
+'''
 This is where the actual survey begins, we ask the user three questions form or question set
 This is a score fusion with a random question form features chosen from the data set
-
+'''
 '''
 #-------------------------------------------------------------------------------------------------------------------------#
 
@@ -402,8 +403,12 @@ writer.writerow(scores)
 file.close()
 
 #------------------------------------------------------------------------------ This is where the data analysis goes-------------------------------------------#
-''' This section of code is to to produce the False Reject Rate, The False Acceptance Rate,
+'''
+
+'''
+This section of code is to to produce the False Reject Rate, The False Acceptance Rate,
 and True Reject Rate, True Accept Rate for the total system as well as analysis on each question'''
+'''
 
 # Generate genuine and imposter scores with the seed at 1
 genuine_scores = pd.read_csv('../raw_scores/survey_score_genuine.csv')
