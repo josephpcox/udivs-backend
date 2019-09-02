@@ -23,9 +23,10 @@ from flask_restful import Api, reqparse
 from sendgrid.helpers.mail import Mail
 from database import *
 from security import hash_password, verify_password, allowed_file
+from questions import getOptions
 app = Flask(__name__)  # Create the flask app
 
-# logging configeration for error logs, print statements and debugging information  
+# logging configeration for error logs, print statements and debugging information
 logging.basicConfig(handlers=[logging.StreamHandler()])
 log = logging.getLogger('test')
 
@@ -34,6 +35,7 @@ app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 jwt = JWTManager(app)
 api = Api(app)  # create the api
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['DOWNLOAD_FOLDER'] = 'downloads'
 
 
 @app.route('/api/register', methods=['POST'])
@@ -44,10 +46,16 @@ def register():
         the database with fake users.
     '''
     parser = reqparse.RequestParser()
+    parser.add_argument('first_name', required=True, type=str,
+                        help='first name field is required')
+    parser.add_argument('last_name', required=True, type=str,
+                        help='email field is required')
     parser.add_argument('email', required=True, type=str,
                         help='email field is required')
     parser.add_argument('password', required=True, type=str,
                         help='password field is required')
+    parser.add_argument('phone_number', required=True, type=str,
+                        help='phone number field is required')
     parser.add_argument('g-recaptcha-response', required=True,
                         type=str, help='recaptcha response is missing')
 
@@ -152,11 +160,10 @@ def details():
     user_id = get_jwt_identity()
     return jsonify(logged_in_as=user_id), 200
 
-# TODO: This will not work, the user should be dending us a csv file to this route and then we update it.
-# requestdata gets put in a pandas dataframe, then from pd we put in into the database as a text file.
+
 @app.route('/api/account/questions', methods=['GET'])
 @jwt_required
-def get_csv():
+def send_questions():
     user_id = get_jwt_identity()
     db_connection = get_database_connection()
     cursor = db_connection.cursor()
@@ -170,10 +177,25 @@ def get_csv():
         bucket_name = os.environ['S3_BUCKET']
         filename = row[0]
         s3 = boto3.resource('s3')
-        s3.meta.client.download_file(bucket_name, filename, '/tmp/hello.txt')
+        file = s3.meta.client.download_file(
+            bucket_name, filename, os.path.join(app.config['DOWNLOAD_FOLDER'], filename))
+        parser = reqparse.RequestParser()
+        data = pandas.read_csv(file)
+        parser.add_argument('random_number', required=True,
+                            help='enter in a random number for the get options function to return a correct answer, three incorect options, and a question string')
+        request_data = parser.parse_args(strict=True)
+        question, answer, options = getOptions(request_data['random_number'])
+
+        return jsonify({"question": question,
+                        "option 1": options[0],
+                        "option 2": option[1],
+                        "option 3": option[2],
+                        "answer": answer
+                        }), 200
 
     else:
-        return 204
+        return 404
+
 
 @app.route('/api/account/csv', methods=['POST'])
 @jwt_required
@@ -235,9 +257,12 @@ def verify_email():
         return jsonify({"msg": "Email Verified"}), 200
 
 # web pages
+
+
 @app.route('/')
 def home():
     return render_template('enroll.html')
+
 
 @app.route('/email_verify')
 def email_verify():

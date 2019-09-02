@@ -7,7 +7,6 @@ Created on Sat Oct 27 23:11:33 2018
 @author: joe
 """
 import pandas as pd
-import matplotlib.pyplot as plt
 import random
 import numpy as np
 from operator import itemgetter

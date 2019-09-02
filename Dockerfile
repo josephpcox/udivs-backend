@@ -23,6 +23,6 @@ RUN pip3 install Send2Trash
 RUN pip3 install unicodecsv
 RUN pip install psycopg2 
 RUN mkdir uploads
-
+RUN mkdir downloads
 
 CMD ["udivs.py"]

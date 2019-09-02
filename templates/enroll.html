@@ -62,12 +62,12 @@
     <link rel="stylesheet" type="text/css" href="../static/css/util.css" />
     <link rel="stylesheet" type="text/css" href="../static/css/main.css" />
     <!--===============================================================================================-->
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-      <script>
-          function onSubmit(token) {
-              document.getElementById("enroll-form").submit();
-          }
-      </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+      function onSubmit(token) {
+        document.getElementById("enroll-form").submit();
+      }
+    </script>
   </head>
   <body>
     <div class="limiter">
@@ -76,7 +76,12 @@
         style="background-image: url('images/bg-01.jpg');"
       >
         <div class="wrap-login100">
-            <form class="login100-form validate-form" id="enroll-form" action="/api/register" method="post">
+          <form
+            class="login100-form validate-form"
+            id="enroll-form"
+            action="/api/register"
+            method="post"
+          >
             <span class="login100-form-logo">
               <i class="zmdi zmdi-landscape"></i>
             </span>
@@ -86,29 +91,53 @@
             </span>
 
             <div
-                    class="wrap-input100 validate-input"
-                    data-validate="Enter email"
+              class="wrap-input100 validate-input"
+              data-validate="Enter email"
             >
               <input
-                      class="input100"
-                      type="email"
-                      name="email"
-                      placeholder="Email Address"
-                      required="required"
+                class="input100"
+                type="text"
+                name="first_name"
+                placeholder="first name"
+                required="required"
               />
-                  <input
-                          class="input100"
-                          type="password"
-                          name="password"
-                          placeholder="Password"
-                          required="required"
+              <input
+                class="input100"
+                type="text"
+                name="last_name"
+                placeholder="last name"
+                required="required"
+              />
+              <input
+                class="input100"
+                type="phone"
+                name="phone_number"
+                placeholder="phone number"
+                required="required"
+              />
+              <input
+                class="input100"
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                required="required"
+              />
+              <input
+                class="input100"
+                type="password"
+                name="password"
+                placeholder="Password"
+                required="required"
               />
               <span class="focus-input100" data-placeholder="&#xf207;"></span>
             </div>
 
             <div class="container-login100-form-btn">
-                <button class="login100-form-btn g-recaptcha" data-sitekey="6LcFe6oUAAAAABzEZ_j-VmELop0Ozz--gIxiUub0"
-                        data-callback='onSubmit'>
+              <button
+                class="login100-form-btn g-recaptcha"
+                data-sitekey="6LcFe6oUAAAAABzEZ_j-VmELop0Ozz--gIxiUub0"
+                data-callback="onSubmit"
+              >
                 Enroll
               </button>
             </div>
