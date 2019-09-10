@@ -182,7 +182,8 @@ def send_questions():
         parser = reqparse.RequestParser()
         data = pandas.read_csv(file)
         parser.add_argument('random_number', required=True,
-                            help='enter in a random number for the get options function to return a correct answer, three incorect options, and a question string')
+                            help='enter in a random number for the get options function to return a correct answer, '
+                                 'three incorect options, and a question string')
         request_data = parser.parse_args(strict=True)
         question, answer, options = getOptions(request_data['random_number'])
 

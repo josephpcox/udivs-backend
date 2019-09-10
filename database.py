@@ -25,11 +25,13 @@ def initialize_database(connection):
         cursor.execute(
             'CREATE TABLE IF NOT EXISTS users ('
             'id serial PRIMARY KEY,'
+            'first_name VARCHAR (255) NOT NULL'
+            'last_name VARCHAR (255) NOT NULL'
             'email VARCHAR (255) UNIQUE NOT NULL,'
             'password VARCHAR (255) NOT NULL,'
+            'phone VARCHAR (255) UNIQUE NOT NULL,'
             'admin BOOLEAN NOT NULL DEFAULT FALSE,'
-            'email_verified BOOLEAN NOT NULL DEFAULT FALSE,'
-            'csv_file TEXT)')
+            'email_verified BOOLEAN NOT NULL DEFAULT FALSE,')
 
         # TODO - FOREIGN KEY
         # TODO - Determine token length
